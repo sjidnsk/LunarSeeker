@@ -1,0 +1,64 @@
+# 系统基线
+
+## 固定平台
+
+本项目以 SCOUT MINI 移动底盘和 PiPER 机械臂作为硬件基线，围绕 ROS2 Humble 构建自主采样系统。
+
+| 类别 | 基线配置 | 状态 |
+| --- | --- | --- |
+| 底盘 | AgileX SCOUT MINI | 待完成 ROS2 bringup |
+| 机械臂 | PiPER | 待完成 ROS2 Humble 驱动验证 |
+| 主视觉 | RealSense D435i 级 RGB-D 相机 | 型号、安装位和标定待定 |
+| 导航传感器 | 2D LiDAR | 型号、安装位和外参待定 |
+| 姿态传感器 | IMU | 型号、安装位和外参待定 |
+| 辅助照明 | 补光灯 | 亮度、供电和重量待核算 |
+| 结构件 | 相机、雷达、机械臂、灯具支架 | 待设计和称重 |
+
+## 软件基线
+
+| 项目 | 版本 / 组件 |
+| --- | --- |
+| OS | Ubuntu 22.04 |
+| ROS | ROS2 Humble |
+| Python | Python 3.10 |
+| 构建系统 | colcon |
+| 导航 | Nav2 |
+| 建图 | slam_toolbox |
+| 状态估计 | robot_localization |
+| 控制 | ros2_control |
+| 底盘驱动 | `scout_ros2`，来源见 `dependencies.repos`，分支和 commit 待锁定 |
+| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos`，commit 待锁定 |
+
+## 坐标系约定
+
+建议使用以下基础 TF 树，后续以实测外参和 URDF 为准:
+
+```text
+map
+`-- odom
+    `-- base_link
+        |-- base_footprint
+        |-- lidar_link
+        |-- imu_link
+        |-- rgbd_camera_link
+        |-- fill_light_link
+        |-- piper_base_link
+        `-- sample_bin_link
+```
+
+## 基础能力目标
+
+- 底盘: 发布里程计，接收速度控制，支持急停和低速精细运动。
+- 机械臂: 支持关节状态、末端控制、预设位和抓取动作。
+- RGB-D: 输出彩色图、深度图、相机内参和点云。
+- 2D LiDAR: 输出稳定 `LaserScan`，用于建图、定位和避障。
+- IMU: 输出角速度、线加速度和姿态估计输入。
+- 补光灯: 支持固定照明或任务状态机控制。
+
+## 待验证清单
+
+- SCOUT MINI 驱动与 ROS2 Humble 的接口兼容性。
+- PiPER 驱动、机械臂控制器和 ros2_control 接入方式。
+- 传感器型号、安装高度、视场遮挡和外参标定。
+- 供电、电磁干扰、线束运动余量和防脱落固定。
+- 总重和出发尺寸是否满足赛题硬约束。

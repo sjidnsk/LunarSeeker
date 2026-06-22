@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tzb_lunar_sampler">
+  <xacro:arg name="use_mock_hardware" default="true"/>
+
+  <xacro:macro name="box_inertial" params="mass x y z">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass * (y*y + z*z) / 12.0}" ixy="0.0" ixz="0.0"
+        iyy="${mass * (x*x + z*z) / 12.0}" iyz="0.0"
+        izz="${mass * (x*x + y*y) / 12.0}"/>
+    </inertial>
+  </xacro:macro>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.16" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.75 0.55 0.26"/>
+      </geometry>
+      <material name="scout_dark">
+        <color rgba="0.08 0.09 0.10 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.75 0.55 0.26"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertial mass="22.0" x="0.75" y="0.55" z="0.26"/>
+  </link>
+
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="0.25 0.30 -0.08" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="0.25 -0.30 -0.08" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_left_wheel_link"/>
+    <origin xyz="-0.25 0.30 -0.08" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_right_wheel_link"/>
+    <origin xyz="-0.25 -0.30 -0.08" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <xacro:macro name="wheel_visual" params="name">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder radius="0.13" length="0.08"/>
+        </geometry>
+        <material name="wheel_black">
+          <color rgba="0.02 0.02 0.02 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.13" length="0.08"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="1.0" x="0.08" y="0.26" z="0.26"/>
+    </link>
+  </xacro:macro>
+
+  <xacro:wheel_visual name="front_left_wheel_link"/>
+  <xacro:wheel_visual name="front_right_wheel_link"/>
+  <xacro:wheel_visual name="rear_left_wheel_link"/>
+  <xacro:wheel_visual name="rear_right_wheel_link"/>
+
+  <link name="piper_base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.08" length="0.12"/>
+      </geometry>
+      <material name="piper_gray">
+        <color rgba="0.55 0.58 0.62 1.0"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="piper_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="piper_base_link"/>
+    <origin xyz="0.02 0 0.20" rpy="0 0 0"/>
+  </joint>
+
+  <link name="sample_bin_link">
+    <visual>
+      <geometry>
+        <box size="0.20 0.24 0.10"/>
+      </geometry>
+      <material name="sample_bin_blue">
+        <color rgba="0.05 0.22 0.75 0.65"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="sample_bin_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sample_bin_link"/>
+    <origin xyz="-0.20 0 0.20" rpy="0 0 0"/>
+  </joint>
+
+  <link name="rgbd_camera_link"/>
+  <joint name="rgbd_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rgbd_camera_link"/>
+    <origin xyz="0.32 0 0.46" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_link"/>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.22 0 0.42" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0.32" rpy="0 0 0"/>
+  </joint>
+
+  <link name="fill_light_link"/>
+  <joint name="fill_light_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="fill_light_link"/>
+    <origin xyz="0.36 0 0.38" rpy="0 0 0"/>
+  </joint>
+</robot>

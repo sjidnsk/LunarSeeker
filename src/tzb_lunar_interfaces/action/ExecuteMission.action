@@ -1,0 +1,14 @@
+uint8 run_index
+bool use_mock_hardware
+string profile_name
+---
+bool success
+int32 estimated_score
+uint16 collected_count
+string summary
+uint16 fault_code
+---
+MissionState state
+string current_behavior
+float32 progress
+

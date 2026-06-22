@@ -1,0 +1,58 @@
+mission:
+  name: lunar_lava_tube_autonomous_sampling
+  max_total_mass_kg: 30
+  max_start_box_mm: [800, 800, 800]
+  time_limit_sec: 600
+  run_count_per_round: 2
+  remote_intervention_allowed: false
+
+platform:
+  base:
+    model: SCOUT MINI
+    driver_package: scout_ros2
+    command_topic: /cmd_vel
+    odometry_topic: /odom
+    can_interface: can0
+  manipulator:
+    model: PiPER
+    driver_package: piper_ros
+    sdk_package: piper_sdk
+    joint_states_topic: /joint_states
+    can_interface: can1
+  compute:
+    os: Ubuntu 22.04
+    ros_distribution: humble
+    python: "3.10"
+
+sensors:
+  rgbd_camera:
+    class: RealSense D435i level RGB-D
+    color_topic: /camera/color/image_raw
+    depth_topic: /camera/depth/image_rect_raw
+    camera_info_topic: /camera/color/camera_info
+    frame_id: rgbd_camera_link
+  lidar_2d:
+    class: 2D LiDAR
+    scan_topic: /scan
+    frame_id: lidar_link
+  external_imu:
+    class: external IMU
+    imu_topic: /imu/data
+    frame_id: imu_link
+  fill_light:
+    class: controllable fill light
+    command_topic: /fill_light/cmd
+    state_topic: /fill_light/state
+
+topics:
+  tf: /tf
+  target_detections: /target_detections
+  mission_state: /mission/state
+
+software:
+  navigation: Nav2
+  slam: slam_toolbox
+  localization: robot_localization
+  control: ros2_control
+  primary_language: Python 3.10
+

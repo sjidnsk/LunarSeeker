@@ -1,0 +1,22 @@
+sensor_mounts:
+  rgbd_camera:
+    frame_id: rgbd_camera_link
+    parent_frame: base_link
+    xyz_m: [0.32, 0.0, 0.46]
+    rpy_rad: [0.0, 0.0, 0.0]
+  lidar_2d:
+    frame_id: lidar_link
+    parent_frame: base_link
+    xyz_m: [0.22, 0.0, 0.42]
+    rpy_rad: [0.0, 0.0, 0.0]
+  external_imu:
+    frame_id: imu_link
+    parent_frame: base_link
+    xyz_m: [0.0, 0.0, 0.32]
+    rpy_rad: [0.0, 0.0, 0.0]
+  fill_light:
+    frame_id: fill_light_link
+    parent_frame: base_link
+    xyz_m: [0.36, 0.0, 0.38]
+    rpy_rad: [0.0, 0.0, 0.0]
+
