@@ -14,6 +14,12 @@
 | 辅助照明 | 补光灯 | 亮度、供电和重量待核算 |
 | 结构件 | 相机、雷达、机械臂、灯具支架 | 待设计和称重 |
 
+## 供应商手册参考参数
+
+AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
+
+这些参数当前仅作为供应商手册参考值，仍需完成离线资料归档、实物称重、装配尺寸测量、CAN bringup 和传感器标定后，才能作为项目最终配置。特别是手册记录的 Livox Mid360 与当前 2D LiDAR 导航基线不完全一致，需要单独评审 Nav2、slam_toolbox 和点云处理方案。
+
 ## 软件基线
 
 | 项目 | 版本 / 组件 |

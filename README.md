@@ -43,6 +43,7 @@ LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采
 - 系统基线: [docs/system_baseline.md](docs/system_baseline.md)
 - 总体架构: [docs/architecture.md](docs/architecture.md)
 - 重量预算: [docs/weight_budget.md](docs/weight_budget.md)
+- AgileX 平台参数归档: [docs/vendor_agilex_platform_parameters.md](docs/vendor_agilex_platform_parameters.md)
 - 研发路线: [docs/roadmap.md](docs/roadmap.md)
 - 团队协作: [docs/team_workflow.md](docs/team_workflow.md)
 - 仓库协作规则: [AGENTS.md](AGENTS.md)
@@ -85,8 +86,7 @@ ros2 launch tzb_lunar_bringup sim_bringup.launch.py
 ## 资料来源状态
 
 - 本地赛题 PDF: `D:/存储库/项目/挑战杯2026/官方文件/XH-202605_月球熔岩洞机器人智能自主采样任务.pdf`。
-- AgileX SCOUT MINI 官方资料: 待归档，当前作为平台基线来源。
-- PiPER 官方资料: 待归档，当前作为机械臂基线来源。
+- AgileX SCOUT MINI + PiPER 语雀手册: 已读取参数表，归档见 [docs/vendor_agilex_platform_parameters.md](docs/vendor_agilex_platform_parameters.md)，待离线保存。
 - `scout_ros2`: 已写入 [dependencies.repos](dependencies.repos)，分支 / commit 仍需在硬件 bringup 阶段锁定。
 - `piper_ros` humble: 已写入 [dependencies.repos](dependencies.repos)，commit 仍需在硬件 bringup 阶段锁定。
-- 语雀手册链接: 当前不可读取，需作为待人工归档来源记录。
+- 语雀手册链接: 已通过浏览器读取，仍需人工离线归档原始页面或官方副本。

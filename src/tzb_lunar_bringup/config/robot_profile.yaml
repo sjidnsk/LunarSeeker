@@ -6,6 +6,13 @@ mission:
   run_count_per_round: 2
   remote_intervention_allowed: false
 
+reference_sources:
+  agilex_yuque_manual:
+    title: SCOUT MINI + PiPER 用户开发指导手册
+    url: "https://agilexsupport.yuque.com/staff-hso6mo/uvrydi/kxgnsa8bueub7vhh?singleDoc=%E6%89%93%E5%BC%80"
+    accessed_on: "2026-06-24"
+    status: parameters_recorded_pending_offline_archive
+
 platform:
   base:
     model: SCOUT MINI
@@ -13,16 +20,77 @@ platform:
     command_topic: /cmd_vel
     odometry_topic: /odom
     can_interface: can0
+    reference_specs:
+      source_id: agilex_yuque_manual
+      dimensions_mm: [612, 580, 245]
+      wheelbase_mm: 451
+      track_width_mm: 490
+      curb_mass_kg: 23
+      battery_voltage_v: 24
+      battery_capacity_ah: 15
+      motor_power_w_each: 250
+      motor_count: 4
+      drive_type: four_wheel_independent_drive
+      steering_type: four_wheel_differential_steering
+      reduction_ratio: "1:4.3"
+      protection_rating: IP22
+      max_speed_mps: 3
+      min_turning_radius_mm: 0
+      max_slope_deg: 30
+      ground_clearance_mm: 115
+      max_runtime_h: 8
+      max_range_km: 10
+      charge_time_h: 2
+      operating_temperature_c: [-10, 40]
   manipulator:
     model: PiPER
     driver_package: piper_ros
     sdk_package: piper_sdk
     joint_states_topic: /joint_states
     can_interface: can1
+    reference_specs:
+      source_id: agilex_yuque_manual
+      degrees_of_freedom: 6
+      payload_kg: 1.5
+      body_mass_kg: 4.2
+      repeatability_mm: 0.1
+      work_radius_mm: 626.75
+      supply_voltage_v:
+        nominal: 24
+        min: 24
+        max: 26
+      power_w:
+        max: 120
+        typical: 40
+      communication: CAN
+      base_mount_pattern: "70mm x 70mm, M5 x4"
+      joint_ranges_deg:
+        j1: [-154, 154]
+        j2: [0, 195]
+        j3: [-175, 0]
+        j4: [-102, 102]
+        j5: [-75, 75]
+        j6: [-120, 120]
+      joint_max_speed_dps:
+        j1: 180
+        j2: 195
+        j3: 180
+        j4: 225
+        j5: 225
+        j6: 225
   compute:
     os: Ubuntu 22.04
     ros_distribution: humble
     python: "3.10"
+    reference_model: NVIDIA Jetson Orin Nano
+    reference_specs:
+      source_id: agilex_yuque_manual
+      ai_performance_tops: 40
+      memory_bandwidth_gbps: 68
+      cpu: Arm Cortex-A78AE 6-core
+      gpu: NVIDIA Ampere 1024 CUDA cores and 32 Tensor Cores
+      power_w: [7, 25]
+      memory: 8GB 128-bit LPDDR5
 
 sensors:
   rgbd_camera:
@@ -43,6 +111,27 @@ sensors:
     class: controllable fill light
     command_topic: /fill_light/cmd
     state_topic: /fill_light/state
+  vendor_reference:
+    source_id: agilex_yuque_manual
+    body_rgbd_camera_model: Orbbec dabai
+    hand_rgbd_camera_model: Orbbec dabai
+    router_model: HUAWEI 4G router
+    lidar_model: Livox Mid360
+    lidar_specs:
+      fov_deg: [360, 59]
+      near_blind_zone_m: 0.1
+      range_at_10_percent_reflectivity_m: 40
+      point_rate_per_sec: 200000
+      mass_kg: 0.265
+      dimensions_mm: [65, 65, 60]
+    imu_model: CH110
+    imu_specs:
+      gyro_range_dps: 500
+      gyro_resolution_dps: 0.01
+      gyro_internal_sample_rate_hz: 1000
+      accel_range_g: 8
+      accel_resolution_ug: 1
+      accel_internal_sample_rate_hz: 1000
 
 topics:
   tf: /tf
@@ -55,4 +144,3 @@ software:
   localization: robot_localization
   control: ros2_control
   primary_language: Python 3.10
-
