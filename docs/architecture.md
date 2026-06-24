@@ -7,23 +7,23 @@
 ## 功能分层
 
 ```text
-mission_manager
-|-- perception
-|-- localization_mapping
-|-- navigation
-|-- manipulation_sampling
+base_mission
+|-- algo_perception
+|-- algo_localization
+|-- algo_navigation
+|-- algo_manipulation
 |-- safety_monitor
-`-- bringup_config
+`-- base_bringup
 ```
 
 ## 接口冻结原则
 
-跨模块接口以 `src/tzb_lunar_bringup/config/robot_profile.yaml`、`src/tzb_lunar_interfaces` 和本文档为准。任务分工、接口生产者/消费者和分支策略见 [team_workflow.md](team_workflow.md)。
+跨模块接口以 `src/base_bringup/config/robot_profile.yaml`、`src/base_interfaces` 和本文档为准。任务分工、接口生产者/消费者和分支策略见 [team_workflow.md](team_workflow.md)。
 
 任何 topic、frame、消息字段或 action 名称变更，都必须同步更新:
 
-- `src/tzb_lunar_interfaces`
-- `src/tzb_lunar_bringup/config/robot_profile.yaml`
+- `src/base_interfaces`
+- `src/base_bringup/config/robot_profile.yaml`
 - 本文档中的接口表
 - [team_workflow.md](team_workflow.md) 中的责任人和验收标准
 
@@ -46,7 +46,7 @@ mission_manager
 | `/camera/color/image_raw` | `sensor_msgs/Image` | 彩色图 |
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | 深度图 |
 | `/camera/color/camera_info` | `sensor_msgs/CameraInfo` | 相机内参 |
-| `/target_detections` | `tzb_lunar_interfaces/ScienceTargetArray` | 目标检测结果 |
+| `/target_detections` | `base_interfaces/ScienceTargetArray` | 目标检测结果 |
 | `/perception/grasp_candidates` | 待定义 | 抓取候选 |
 
 ## 定位与建图
@@ -115,7 +115,7 @@ mission_manager
 
 建议以明确状态机承载 600 秒任务流程，避免模块间隐式耦合。
 
-当前骨架包 `tzb_lunar_mission` 固定以下阶段值，后续算法实现必须保持与 `tzb_lunar_interfaces/msg/MissionState.msg` 一致:
+当前骨架包 `base_mission` 固定以下阶段值，后续算法实现必须保持与 `base_interfaces/msg/MissionState.msg` 一致:
 
 ```text
 IDLE -> READY -> DEPARTURE -> EXPLORATION -> APPROACH -> SAMPLE -> RETURN -> UNLOAD -> COMPLETE
@@ -126,8 +126,8 @@ FAULT 可由任意阶段进入
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `/mission/state` | `tzb_lunar_interfaces/MissionState` | 当前任务阶段、估计得分、剩余时间和故障信息 |
-| `/execute_mission` | `tzb_lunar_interfaces/ExecuteMission` action | 启动一次完整自主任务 |
+| `/mission/state` | `base_interfaces/MissionState` | 当前任务阶段、估计得分、剩余时间和故障信息 |
+| `/execute_mission` | `base_interfaces/ExecuteMission` action | 启动一次完整自主任务 |
 
 失败恢复建议:
 
@@ -147,7 +147,7 @@ bringup 应分阶段启动:
 5. 建图 / 定位: slam_toolbox。
 6. 导航: Nav2。
 7. 操控: PiPER 控制和采样动作。
-8. 任务: `tzb_lunar_mission` 状态机。
+8. 任务: `base_mission` 状态机。
 
 ## 日志与可观测性
 

@@ -42,10 +42,10 @@ E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。
 | `/tf`、`/tf_static` | `tf2_msgs/TFMessage` | C、description | 全模块 | 至少包含 `map -> odom -> base_link` 和传感器/机械臂外参 |
 | `/camera/color/image_raw` | `sensor_msgs/Image` | D 感知 | D、E | 彩色图稳定，曝光和补光策略可复现 |
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | D 感知 | E | 深度图与彩色图对齐，可用于 3D 位姿估计 |
-| `/target_detections` | `tzb_lunar_interfaces/ScienceTargetArray` | E 目标位姿 | B、F、P0 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |
+| `/target_detections` | `base_interfaces/ScienceTargetArray` | E 目标位姿 | B、F、P0 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |
 | `/joint_states` | `sensor_msgs/JointState` | F 机械臂 | F、P0 | PiPER 关节状态稳定发布 |
-| `/mission/state` | `tzb_lunar_interfaces/MissionState` | P0/任务状态机 | 全员、记录系统 | 能追踪阶段、得分、剩余时间和故障 |
-| `/execute_mission` | `tzb_lunar_interfaces/ExecuteMission` action | P0/任务状态机 | 比赛启动入口 | 可触发一次完整自主任务 |
+| `/mission/state` | `base_interfaces/MissionState` | P0/任务状态机 | 全员、记录系统 | 能追踪阶段、得分、剩余时间和故障 |
+| `/execute_mission` | `base_interfaces/ExecuteMission` action | P0/任务状态机 | 比赛启动入口 | 可触发一次完整自主任务 |
 
 ## 开发分支
 
@@ -67,7 +67,7 @@ E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。
 合并规则：
 
 - 每个分支必须说明影响的 topic、frame、参数和启动文件。
-- 涉及接口变更时，必须同步修改 `src/tzb_lunar_interfaces`、`src/tzb_lunar_bringup/config/robot_profile.yaml` 和相关文档。
+- 涉及接口变更时，必须同步修改 `src/base_interfaces`、`src/base_bringup/config/robot_profile.yaml` 和相关文档。
 - 合入 `integration` 前至少完成本模块自测；合入 `main` 前必须完成整车或 mock 集成验收。
 - 不提交 rosbag、大模型、构建产物、`build/`、`install/`、`log/`、`__pycache__/`。
 

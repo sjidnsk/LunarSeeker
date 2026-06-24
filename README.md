@@ -36,9 +36,9 @@ LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采
 
 ## 开发入口
 
-- 仿真 / mock bringup: `ros2 launch tzb_lunar_bringup sim_bringup.launch.py`
-- 任务配置: [src/tzb_lunar_bringup/config/robot_profile.yaml](src/tzb_lunar_bringup/config/robot_profile.yaml)
-- 任务接口: [src/tzb_lunar_interfaces](src/tzb_lunar_interfaces)
+- 仿真 / mock bringup: `ros2 launch base_bringup sim_bringup.launch.py`
+- 任务配置: [src/base_bringup/config/robot_profile.yaml](src/base_bringup/config/robot_profile.yaml)
+- 任务接口: [src/base_interfaces](src/base_interfaces)
 - 任务说明: [docs/mission_brief.md](docs/mission_brief.md)
 - 系统基线: [docs/system_baseline.md](docs/system_baseline.md)
 - 总体架构: [docs/architecture.md](docs/architecture.md)
@@ -57,7 +57,7 @@ vcs import . < dependencies.repos
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
 source install/setup.bash
-ros2 launch tzb_lunar_bringup sim_bringup.launch.py
+ros2 launch base_bringup sim_bringup.launch.py
 ```
 
 ## 目录结构
@@ -75,10 +75,14 @@ ros2 launch tzb_lunar_bringup sim_bringup.launch.py
     |-- team_workflow.md
     `-- weight_budget.md
 `-- src/
-    |-- tzb_lunar_bringup/
-    |-- tzb_lunar_description/
-    |-- tzb_lunar_interfaces/
-    `-- tzb_lunar_mission/
+    |-- base_bringup/            # 启动、launch、参数配置
+    |-- base_description/        # URDF、xacro、TF 外参、模型
+    |-- base_interfaces/         # msg / srv / action 接口
+    |-- base_mission/            # 任务状态机和流程调度
+    |-- algo_perception/         # 目标检测、分类、RGB-D 3D 位姿
+    |-- algo_localization/       # LiDAR、IMU、里程计融合辅助
+    |-- algo_navigation/         # 搜索、接近、返回和 Nav2 协调
+    `-- algo_manipulation/       # PiPER 采样、抓取、放置和夹爪
 ```
 
 第三方驱动源码不直接提交到本仓库，后续在 ROS2 环境中通过 `vcs import . < dependencies.repos` 拉取 `scout_ros2`、`piper_ros` humble 和 `piper_sdk`。
