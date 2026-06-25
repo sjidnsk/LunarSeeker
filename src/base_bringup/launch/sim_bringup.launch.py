@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -57,6 +58,23 @@ def generate_launch_description():
                         "mission.time_limit_sec": ParameterValue(
                             mission_time_limit_sec, value_type=int
                         ),
+                    },
+                ],
+                output="screen",
+            ),
+            Node(
+                package="base_bringup",
+                executable="mock_base_sensors",
+                name="mock_base_sensors",
+                condition=IfCondition(use_mock_hardware),
+                parameters=[
+                    {
+                        "publish_rate_hz": 10.0,
+                        "odom_frame_id": "odom",
+                        "base_frame_id": "base_link",
+                        "lidar_frame_id": "lidar_link",
+                        "imu_frame_id": "imu_link",
+                        "target_frame_id": "base_link",
                     },
                 ],
                 output="screen",

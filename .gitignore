@@ -2,6 +2,8 @@ build/
 install/
 log/
 
+src/third_party/
+
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -17,7 +19,7 @@ env/
 *.db3
 *.mcap
 *.log
+bags/
 
 .vscode/
 .idea/
-

@@ -6,6 +6,13 @@
 
 团队分工、接口责任和分支策略见 [team_workflow.md](team_workflow.md)。研发推进时按成员负责的可验收能力检查进度，而不是按代码量检查进度。
 
+## 当前状态
+
+- 阶段 0 初始化: 基础文档和 ROS2 工作区骨架已完成，`colcon build --symlink-install` 已于 2026-06-25 在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。
+- 当前推进路径: 小车尚未到位，阶段 1 实车硬件 Bringup 暂缓，先推进 mock/sim 仿真链路。
+- 阶段 1 硬件 Bringup 状态: 待硬件到位后启动，不视为已完成或已验证。
+- 仍需保持待验证状态: 重量、尺寸、传感器安装、线束、支架方案、第三方驱动 commit 和硬件实测指标。
+
 ## 阶段 0: 初始化
 
 目标:
@@ -20,7 +27,7 @@
 
 - 文档可以支撑后续代码、依赖和硬件任务拆分。
 - 每个成员有明确主责、交付物、接口消费者和验收标准。
-- `colcon build --symlink-install` 在 Ubuntu 22.04 + ROS2 Humble 环境中可通过。
+- `colcon build --symlink-install` 已于 2026-06-25 在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。
 - 未验证事实均标注待验证、待归档或待称重。
 
 ## 阶段 1: 硬件 Bringup

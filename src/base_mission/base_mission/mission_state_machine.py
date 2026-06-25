@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import time
 from typing import Optional
 
@@ -118,7 +117,7 @@ class MissionStateMachine(Node):
             feedback.current_behavior = PHASE_NAMES[phase]
             feedback.progress = index / len(phases)
             goal_handle.publish_feedback(feedback)
-            await asyncio.sleep(0.05)
+            time.sleep(0.05)
 
         goal_handle.succeed()
         result = ExecuteMission.Result()
@@ -138,9 +137,12 @@ def main(args=None) -> None:
     node = MissionStateMachine()
     try:
         rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

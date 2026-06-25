@@ -74,6 +74,8 @@ rosdep update
 vcs import . < dependencies.repos
 ```
 
+第三方源码会导入到 `src/third_party/`，该目录不直接提交到主仓库。当前导入版本和待验证状态见 [third_party_dependencies.md](third_party_dependencies.md)。
+
 ## 6. 安装 ROS 依赖
 
 ```bash
@@ -93,9 +95,9 @@ source install/setup.bash
 只构建指定包:
 
 ```bash
-colcon build --symlink-install --packages-select tzb_lunar_interfaces
-colcon build --symlink-install --packages-select tzb_lunar_bringup
-colcon build --symlink-install --packages-select tzb_lunar_mission
+colcon build --symlink-install --packages-select base_interfaces
+colcon build --symlink-install --packages-select base_bringup
+colcon build --symlink-install --packages-select base_mission
 ```
 
 ## 8. 运行 Mock Bringup
@@ -108,6 +110,8 @@ source install/setup.bash
 ros2 launch base_bringup sim_bringup.launch.py
 ```
 
+该启动入口会运行 `robot_state_publisher`、`mission_state_machine`，并在 `use_mock_hardware:=true` 时启动 `mock_base_sensors`，发布 `/odom`、`/scan`、`/imu/data`、`/joint_states` 和空的 `/target_detections`。
+
 指定参数:
 
 ```bash
@@ -118,10 +122,10 @@ use_mock_hardware:=true mission_time_limit_sec:=600
 ## 9. 查看接口
 
 ```bash
-ros2 interface show tzb_lunar_interfaces/msg/MissionState
-ros2 interface show tzb_lunar_interfaces/msg/ScienceTarget
-ros2 interface show tzb_lunar_interfaces/msg/ScienceTargetArray
-ros2 interface show tzb_lunar_interfaces/action/ExecuteMission
+ros2 interface show base_interfaces/msg/MissionState
+ros2 interface show base_interfaces/msg/ScienceTarget
+ros2 interface show base_interfaces/msg/ScienceTargetArray
+ros2 interface show base_interfaces/action/ExecuteMission
 ```
 
 ## 10. 查看 Topic
@@ -139,6 +143,7 @@ ros2 topic echo /mission/state
 ros2 topic echo /odom
 ros2 topic echo /scan
 ros2 topic echo /imu/data
+ros2 topic echo /joint_states
 ros2 topic echo /target_detections
 ```
 
@@ -148,6 +153,8 @@ ros2 topic echo /target_detections
 ros2 topic hz /odom
 ros2 topic hz /scan
 ros2 topic hz /imu/data
+ros2 topic hz /joint_states
+ros2 topic hz /target_detections
 ```
 
 ## 11. 查看节点
@@ -155,6 +162,7 @@ ros2 topic hz /imu/data
 ```bash
 ros2 node list
 ros2 node info /mission_state_machine
+ros2 node info /mock_base_sensors
 ```
 
 ## 12. 调用任务 Action
@@ -200,7 +208,7 @@ ros2 bag record /mission/state /tf /tf_static /odom /scan /imu/data /target_dete
 指定输出目录:
 
 ```bash
-ros2 bag record -o bags/mock_run_001 /mission/state /tf /tf_static /odom /scan /imu/data
+ros2 bag record -o bags/mock_run_001 /mission/state /tf /tf_static /odom /scan /imu/data /joint_states /target_detections
 ```
 
 查看 bag 信息:
@@ -321,4 +329,3 @@ colcon build --symlink-install
 source install/setup.bash
 ros2 launch base_bringup sim_bringup.launch.py
 ```
-

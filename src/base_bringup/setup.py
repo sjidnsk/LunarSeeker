@@ -20,4 +20,9 @@ setup(
     description="Launch and configuration package for the lunar sampling robot.",
     license="Apache-2.0",
     tests_require=["pytest"],
+    entry_points={
+        "console_scripts": [
+            "mock_base_sensors = base_bringup.mock_base_sensors:main",
+        ],
+    },
 )

@@ -32,8 +32,8 @@ AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](ven
 | 建图 | slam_toolbox |
 | 状态估计 | robot_localization |
 | 控制 | ros2_control |
-| 底盘驱动 | `scout_ros2`，来源见 `dependencies.repos`，分支和 commit 待锁定 |
-| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos`，commit 待锁定 |
+| 底盘驱动 | `scout_ros2` + `ugv_sdk`，来源见 `dependencies.repos` 和 [third_party_dependencies.md](third_party_dependencies.md)，commit 待硬件验证锁定 |
+| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos` 和 [third_party_dependencies.md](third_party_dependencies.md)，commit 待硬件验证锁定 |
 
 ## 坐标系约定
 
