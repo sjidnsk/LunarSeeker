@@ -9,9 +9,9 @@ try:
     from nav_msgs.msg import Odometry
     from rclpy.node import Node
     from sensor_msgs.msg import Imu, JointState, LaserScan
-    from tf2_ros import TransformBroadcaster
+    from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
 
-    from base_interfaces.msg import ScienceTargetArray
+    from base_interfaces.msg import ScienceTarget, ScienceTargetArray
 except ImportError:  # Allows non-ROS unit tests to import this module.
     rclpy = None
     TransformStamped = None
@@ -20,7 +20,9 @@ except ImportError:  # Allows non-ROS unit tests to import this module.
     Imu = None
     JointState = None
     LaserScan = None
+    StaticTransformBroadcaster = None
     TransformBroadcaster = None
+    ScienceTarget = None
     ScienceTargetArray = None
 
 
@@ -31,11 +33,12 @@ def yaw_to_quaternion(yaw: float):
 
 
 class MockBaseSensors(Node):
-    """Publish deterministic mock base, scan, IMU, and empty perception topics."""
+    """Publish deterministic mock base, sensor, joint, and target topics."""
 
     def __init__(self) -> None:
         super().__init__("mock_base_sensors")
         self.declare_parameter("publish_rate_hz", 10.0)
+        self.declare_parameter("map_frame_id", "map")
         self.declare_parameter("odom_frame_id", "odom")
         self.declare_parameter("base_frame_id", "base_link")
         self.declare_parameter("lidar_frame_id", "lidar_link")
@@ -43,6 +46,7 @@ class MockBaseSensors(Node):
         self.declare_parameter("target_frame_id", "base_link")
         self.declare_parameter("linear_speed_mps", 0.05)
         self.declare_parameter("yaw_rate_rps", 0.0)
+        self.declare_parameter("selected_target_id", "mock_target_01")
 
         self._odom_pub = self.create_publisher(Odometry, "/odom", 10)
         self._scan_pub = self.create_publisher(LaserScan, "/scan", 10)
@@ -52,7 +56,9 @@ class MockBaseSensors(Node):
             ScienceTargetArray, "/target_detections", 10
         )
         self._tf_broadcaster = TransformBroadcaster(self)
+        self._static_tf_broadcaster = StaticTransformBroadcaster(self)
         self._started_at = self.get_clock().now()
+        self._publish_static_map_to_odom()
 
         rate_hz = float(self.get_parameter("publish_rate_hz").value)
         period_sec = 1.0 / max(rate_hz, 0.1)
@@ -81,7 +87,7 @@ class MockBaseSensors(Node):
         self._publish_scan(now, lidar_frame)
         self._publish_imu(now, imu_frame, qx, qy, qz, qw, yaw_rate)
         self._publish_joint_states(now)
-        self._publish_empty_targets(now, target_frame)
+        self._publish_mock_targets(now, target_frame)
 
     def _publish_odom(
         self,
@@ -137,6 +143,17 @@ class MockBaseSensors(Node):
         transform.transform.rotation.w = qw
         self._tf_broadcaster.sendTransform(transform)
 
+    def _publish_static_map_to_odom(self) -> None:
+        transform = TransformStamped()
+        transform.header.stamp = self.get_clock().now().to_msg()
+        transform.header.frame_id = str(self.get_parameter("map_frame_id").value)
+        transform.child_frame_id = str(self.get_parameter("odom_frame_id").value)
+        transform.transform.translation.x = 0.0
+        transform.transform.translation.y = 0.0
+        transform.transform.translation.z = 0.0
+        transform.transform.rotation.w = 1.0
+        self._static_tf_broadcaster.sendTransform(transform)
+
     def _publish_scan(self, stamp, lidar_frame: str) -> None:
         sample_count = 181
         scan = LaserScan()
@@ -188,12 +205,61 @@ class MockBaseSensors(Node):
         joint_state.velocity = [0.0, 0.0, 0.0, 0.0]
         self._joint_pub.publish(joint_state)
 
-    def _publish_empty_targets(self, stamp, target_frame: str) -> None:
+    def _publish_mock_targets(self, stamp, target_frame: str) -> None:
         targets = ScienceTargetArray()
         targets.header.stamp = stamp
         targets.header.frame_id = target_frame
-        targets.targets = []
+        targets.targets = [
+            self._build_target(
+                stamp=stamp,
+                frame_id=target_frame,
+                target_id="mock_target_01",
+                target_type="basalt_sample",
+                confidence=0.92,
+                xyz=(1.20, 0.22, 0.16),
+                selected=True,
+            ),
+            self._build_target(
+                stamp=stamp,
+                frame_id=target_frame,
+                target_id="mock_target_02",
+                target_type="anorthosite_sample",
+                confidence=0.74,
+                xyz=(1.65, -0.30, 0.18),
+                selected=False,
+            ),
+        ]
         self._target_pub.publish(targets)
+
+    def _build_target(
+        self,
+        stamp,
+        frame_id: str,
+        target_id: str,
+        target_type: str,
+        confidence: float,
+        xyz: tuple[float, float, float],
+        selected: bool,
+    ):
+        target = ScienceTarget()
+        target.header.stamp = stamp
+        target.header.frame_id = frame_id
+        target.target_id = target_id
+        target.target_type = target_type
+        target.confidence = confidence
+        target.pose.header.stamp = stamp
+        target.pose.header.frame_id = frame_id
+        target.pose.pose.position.x = xyz[0]
+        target.pose.pose.position.y = xyz[1]
+        target.pose.pose.position.z = xyz[2]
+        target.pose.pose.orientation.w = 1.0
+        target.status = (
+            ScienceTarget.STATUS_CONFIRMED
+            if selected
+            else ScienceTarget.STATUS_CANDIDATE
+        )
+        target.selected_for_sampling = selected
+        return target
 
     @staticmethod
     def _mock_ranges(sample_count: int) -> List[float]:

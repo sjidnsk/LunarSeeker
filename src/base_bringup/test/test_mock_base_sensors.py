@@ -43,3 +43,18 @@ def test_mock_node_declares_required_topics():
         "/target_detections",
     ):
         assert topic in text
+
+
+def test_mock_node_declares_semantic_targets():
+    text = MOCK_NODE.read_text(encoding="utf-8")
+
+    assert "mock_target_01" in text
+    assert "basalt_sample" in text
+    assert "selected_for_sampling" in text
+
+
+def test_mock_node_declares_map_to_odom_tf():
+    text = MOCK_NODE.read_text(encoding="utf-8")
+
+    assert "map_frame_id" in text
+    assert "_publish_static_map_to_odom" in text

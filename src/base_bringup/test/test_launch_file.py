@@ -10,4 +10,6 @@ def test_sim_bringup_launch_contains_mock_argument():
     assert "use_mock_hardware" in text
     assert "mission_state_machine" in text
     assert "mock_base_sensors" in text
+    assert "mock_navigation" in text
+    assert "mock_manipulation" in text
     assert "robot_state_publisher" in text

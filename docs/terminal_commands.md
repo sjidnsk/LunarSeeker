@@ -110,7 +110,7 @@ source install/setup.bash
 ros2 launch base_bringup sim_bringup.launch.py
 ```
 
-该启动入口会运行 `robot_state_publisher`、`mission_state_machine`，并在 `use_mock_hardware:=true` 时启动 `mock_base_sensors`，发布 `/odom`、`/scan`、`/imu/data`、`/joint_states` 和空的 `/target_detections`。
+该启动入口会运行 `robot_state_publisher`、`mission_state_machine`，并在 `use_mock_hardware:=true` 时启动 `mock_base_sensors`、`mock_navigation` 和 `mock_manipulation`。mock 节点发布 `/odom`、`/scan`、`/imu/data`、`/joint_states`、带语义的 `/target_detections`、`/goal_pose`、`/mock/navigation_status` 和 `/mock/manipulation_status`。
 
 指定参数:
 
@@ -145,6 +145,9 @@ ros2 topic echo /scan
 ros2 topic echo /imu/data
 ros2 topic echo /joint_states
 ros2 topic echo /target_detections
+ros2 topic echo /goal_pose
+ros2 topic echo /mock/navigation_status
+ros2 topic echo /mock/manipulation_status
 ```
 
 查看发布频率:
@@ -155,6 +158,9 @@ ros2 topic hz /scan
 ros2 topic hz /imu/data
 ros2 topic hz /joint_states
 ros2 topic hz /target_detections
+ros2 topic hz /goal_pose
+ros2 topic hz /mock/navigation_status
+ros2 topic hz /mock/manipulation_status
 ```
 
 ## 11. 查看节点
@@ -163,6 +169,8 @@ ros2 topic hz /target_detections
 ros2 node list
 ros2 node info /mission_state_machine
 ros2 node info /mock_base_sensors
+ros2 node info /mock_navigation
+ros2 node info /mock_manipulation
 ```
 
 ## 12. 调用任务 Action
@@ -192,6 +200,7 @@ ros2 run tf2_tools view_frames
 
 ```bash
 ros2 run tf2_ros tf2_echo odom base_link
+ros2 run tf2_ros tf2_echo map odom
 ros2 run tf2_ros tf2_echo base_link rgbd_camera_link
 ros2 run tf2_ros tf2_echo base_link lidar_link
 ros2 run tf2_ros tf2_echo base_link piper_base_link
@@ -202,13 +211,13 @@ ros2 run tf2_ros tf2_echo base_link piper_base_link
 录制关键 topic:
 
 ```bash
-ros2 bag record /mission/state /tf /tf_static /odom /scan /imu/data /target_detections
+ros2 bag record /mission/state /tf /tf_static /odom /scan /imu/data /joint_states /target_detections /goal_pose /mock/navigation_status /mock/manipulation_status
 ```
 
 指定输出目录:
 
 ```bash
-ros2 bag record -o bags/mock_run_001 /mission/state /tf /tf_static /odom /scan /imu/data /joint_states /target_detections
+ros2 bag record -o bags/mock_run_001 /mission/state /tf /tf_static /odom /scan /imu/data /joint_states /target_detections /goal_pose /mock/navigation_status /mock/manipulation_status
 ```
 
 查看 bag 信息:

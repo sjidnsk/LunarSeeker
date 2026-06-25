@@ -17,4 +17,9 @@ setup(
     description="Manipulation algorithms for PiPER sampling, grasping, and unloading.",
     license="Apache-2.0",
     tests_require=["pytest"],
+    entry_points={
+        "console_scripts": [
+            "mock_manipulation = algo_manipulation.mock_manipulation:main",
+        ],
+    },
 )

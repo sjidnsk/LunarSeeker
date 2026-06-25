@@ -70,6 +70,7 @@ def generate_launch_description():
                 parameters=[
                     {
                         "publish_rate_hz": 10.0,
+                        "map_frame_id": "map",
                         "odom_frame_id": "odom",
                         "base_frame_id": "base_link",
                         "lidar_frame_id": "lidar_link",
@@ -77,6 +78,27 @@ def generate_launch_description():
                         "target_frame_id": "base_link",
                     },
                 ],
+                output="screen",
+            ),
+            Node(
+                package="algo_navigation",
+                executable="mock_navigation",
+                name="mock_navigation",
+                condition=IfCondition(use_mock_hardware),
+                parameters=[
+                    {
+                        "map_frame_id": "map",
+                        "publish_rate_hz": 2.0,
+                    },
+                ],
+                output="screen",
+            ),
+            Node(
+                package="algo_manipulation",
+                executable="mock_manipulation",
+                name="mock_manipulation",
+                condition=IfCondition(use_mock_hardware),
+                parameters=[{"publish_rate_hz": 2.0}],
                 output="screen",
             ),
         ]

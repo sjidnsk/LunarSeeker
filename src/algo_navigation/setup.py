@@ -17,4 +17,9 @@ setup(
     description="Navigation strategy nodes for search, approach, return, and Nav2 coordination.",
     license="Apache-2.0",
     tests_require=["pytest"],
+    entry_points={
+        "console_scripts": [
+            "mock_navigation = algo_navigation.mock_navigation:main",
+        ],
+    },
 )

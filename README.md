@@ -53,6 +53,7 @@ LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采
 
 - 阶段 0 初始化: 基础文档、ROS2 工作区骨架、接口包、bringup 包、description 包和任务状态机包已建立；`colcon build --symlink-install` 已确认通过。
 - 当前推进路径: 小车尚未到位，暂时跳过实车硬件 Bringup，先验证 mock/sim 启动、任务状态机和基础 topic 链路。
+- Mock/sim 验证: 当前可发布 mock 目标、mock 导航状态和基础传感器 topic，验证记录见 [docs/mock_bringup_validation.md](docs/mock_bringup_validation.md)。
 - 阶段 1 硬件 Bringup: 待小车和硬件到位后启动，需验证 SCOUT MINI、PiPER、RGB-D、LiDAR、IMU、基础 TF、URDF 和启动文件。
 - 未关闭风险: 重量、出发尺寸、传感器安装、线束、供电、支架和第三方驱动 commit 仍待实测、待归档或待硬件验证锁定。
 
