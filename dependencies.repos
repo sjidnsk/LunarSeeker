@@ -2,7 +2,7 @@ repositories:
   src/third_party/scout_ros2:
     type: git
     url: https://github.com/agilexrobotics/scout_ros2.git
-    version: master
+    version: humble
   src/third_party/piper_ros:
     type: git
     url: https://github.com/agilexrobotics/piper_ros.git
