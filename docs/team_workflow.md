@@ -2,50 +2,47 @@
 
 ## 组织原则
 
-本项目按“可验收能力”分工，而不是按文件分工。7 名成员中，1 人负责系统协调与最终集成，6 人分别负责底盘导航、定位建图、感知识别和采样操控中的关键能力。
+本项目按“可验收能力”分工，而不是按文件分工。当前 7 名成员按三条能力线推进：移动自主组负责 SLAM、探索、规划与控制；视觉感知组负责目标识别与感知输出；机械臂组负责 PiPER 采样、携带与放置。系统集成、接口冻结和阶段验收通过每周接口评审共同推进，后续可根据组会决定指定单独接口协调牵头人。
 
 所有模块开发都必须围绕固定接口推进：能否按约定发布/订阅 topic、维护 TF、输出状态和被任务状态机调用，是判断模块完成度的主要标准。
 
-## 角色分配
+## 任务分工
 
-| 角色 | 主责 | 关键交付 | 主要协作对象 |
-| --- | --- | --- | --- |
-| P0 系统负责人 | 总体架构、接口冻结、进度协调、集成验收、比赛材料总控 | 接口评审记录、每周集成目标、风险清单、提交包 | 全员 |
-| A 底盘负责人 | SCOUT MINI bringup、CAN、急停、低速控制 | `/cmd_vel` 可控、`/odom` 稳定、底盘测试记录 | B、C、P0 |
-| B 导航负责人 | Nav2、路径规划、避障、返回基地、恢复策略 | 离开基地、搜索点巡航、返回基地、导航失败恢复 | A、C、F、P0 |
-| C 定位建图负责人 | LiDAR、IMU、TF、slam_toolbox、robot_localization | `/scan`、`/imu/data`、`/tf`、地图和定位稳定性 | A、B、P0 |
-| D 感知检测负责人 | RGB-D、补光、科学目标检测、置信度输出 | 图像采集、目标分类、检测结果 | E、P0 |
-| E 目标位姿负责人 | 深度定位、坐标转换、抓取候选、接口桥接 | `/target_detections`、目标在 `base_link` 或 `piper_base_link` 下的 3D 位姿 | D、F、B、P0 |
-| F 机械臂采样负责人 | PiPER bringup、末端执行器、抓取和放置动作 | `/joint_states`、抓取序列、放置序列、失败重试 | E、B、P0 |
+| 小组 | 成员 | 主责 | 关键交付 | 主要协作对象 |
+| --- | --- | --- | --- | --- |
+| 移动自主组 | 胡凯、李雨桐、吕思颐 | SLAM、探索策略、路径规划、局部避障、运动控制、返回基地 | `/map`、`/tf`、`/odom` 或 `/odometry/filtered`、导航目标状态、`/cmd_vel` 控制输出、导航失败恢复记录 | 视觉感知组、机械臂组、系统集成 |
+| 视觉感知组 | 胡晟源、唐浩松 | RGB-D 采集、目标检测 / 分类 / 分割、目标空间定位、可采样性判断 | 目标类别、置信度、检测框或掩膜、`/target_detections`、必要时输出 `/perception/grasp_candidates` | 移动自主组、机械臂组、系统集成 |
+| 机械臂组 | 吕森炜、陈秉民 | PiPER bringup、末端执行器、抓取、携带、放置、失败重试 | `/joint_states`、抓取序列、放置序列、`/manipulation/status`、抓取成功 / 失败结果 | 视觉感知组、移动自主组、系统集成 |
+| 系统集成与接口协调 | 全员，后续组会确认牵头人 | 接口冻结、进度协调、集成验收、比赛材料总控 | 接口评审记录、每周集成目标、风险清单、提交包 | 全员 |
 
-E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。E 输出的目标位姿必须能被 F 直接用于抓取规划，也要能被 B 用于目标接近点规划。
+视觉感知组是移动自主组与机械臂组之间的接口桥梁，不能只输出“看见了目标”。视觉输出必须同时满足两类消费：移动自主组可据此生成目标接近点，机械臂组可据此验证抓取候选并执行采样动作。
 
 ## 小组划分
 
 | 小组 | 成员 | 阶段目标 |
 | --- | --- | --- |
-| 移动导航组 | A + B + C | 机器人能稳定离开基地、避障、返回基地 |
-| 感知识别组 | D + E | 能识别科学目标，并输出可用于抓取的 3D 位姿 |
-| 采样操控组 | E + F | 能根据目标位姿完成抓取、携带和放置 |
-| 系统集成 | P0 + 各负责人 | 串通“离开-搜索-识别-抓取-返回-放置”全流程 |
+| 移动自主组 | 胡凯、李雨桐、吕思颐 | 机器人能稳定离开基地、完成探索、避障、规划控制和返回基地 |
+| 视觉感知组 | 胡晟源、唐浩松 | 能识别科学目标，并输出可用于导航接近和机械臂抓取的目标信息 |
+| 机械臂组 | 吕森炜、陈秉民 | 能根据目标位姿完成抓取、携带和放置 |
+| 系统集成 | 全员，后续组会确认牵头人 | 串通“离开-搜索-识别-抓取-返回-放置”全流程 |
 
 ## 接口约定
 
-接口变更必须先由 P0 组织评审，再改 `robot_profile.yaml`、接口定义和文档。任何模块不得私自更换 topic、frame 或消息字段。
+接口变更必须先由系统集成与接口协调牵头人组织评审；牵头人未指定前，由每周接口评审共同确认。确认后再改 `robot_profile.yaml`、接口定义和文档。任何模块不得私自更换 topic、frame 或消息字段。
 
 | 接口 | 类型 | 生产者 | 消费者 | 验收标准 |
 | --- | --- | --- | --- | --- |
-| `/cmd_vel` | `geometry_msgs/Twist` | B 导航 | A 底盘 | 底盘能低速、可控、可急停地响应速度指令 |
-| `/odom` | `nav_msgs/Odometry` | A 底盘 | B、C | 里程计连续、时间戳正常、frame 与 TF 一致 |
-| `/scan` | `sensor_msgs/LaserScan` | C 定位建图 | B、C | 雷达数据稳定，坐标系为 `lidar_link` |
-| `/imu/data` | `sensor_msgs/Imu` | C 定位建图 | C | IMU 方向、单位、频率经过记录和验证 |
-| `/tf`、`/tf_static` | `tf2_msgs/TFMessage` | C、description | 全模块 | 至少包含 `map -> odom -> base_link` 和传感器/机械臂外参 |
-| `/camera/color/image_raw` | `sensor_msgs/Image` | D 感知 | D、E | 彩色图稳定，曝光和补光策略可复现 |
-| `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | D 感知 | E | 深度图与彩色图对齐，可用于 3D 位姿估计 |
-| `/target_detections` | `base_interfaces/ScienceTargetArray` | E 目标位姿 | B、F、P0 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |
-| `/joint_states` | `sensor_msgs/JointState` | F 机械臂 | F、P0 | PiPER 关节状态稳定发布 |
-| `/mission/state` | `base_interfaces/MissionState` | P0/任务状态机 | 全员、记录系统 | 能追踪阶段、得分、剩余时间和故障 |
-| `/execute_mission` | `base_interfaces/ExecuteMission` action | P0/任务状态机 | 比赛启动入口 | 可触发一次完整自主任务 |
+| `/cmd_vel` | `geometry_msgs/Twist` | 移动自主组 | 底盘驱动 / bringup | 底盘能低速、可控、可急停地响应速度指令 |
+| `/odom` | `nav_msgs/Odometry` | 底盘驱动 / bringup | 移动自主组 | 里程计连续、时间戳正常、frame 与 TF 一致 |
+| `/scan` | `sensor_msgs/LaserScan` | LiDAR bringup | 移动自主组 | 雷达数据稳定，坐标系为 `lidar_link` |
+| `/imu/data` | `sensor_msgs/Imu` | IMU bringup | 移动自主组 | IMU 方向、单位、频率经过记录和验证 |
+| `/tf`、`/tf_static` | `tf2_msgs/TFMessage` | 移动自主组 / description | 全模块 | 至少包含 `map -> odom -> base_link` 和传感器/机械臂外参 |
+| `/camera/color/image_raw` | `sensor_msgs/Image` | 视觉感知组 | 视觉感知组 | 彩色图稳定，曝光和补光策略可复现 |
+| `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | 视觉感知组 | 视觉感知组 | 深度图与彩色图对齐，可用于 3D 位姿估计 |
+| `/target_detections` | `base_interfaces/ScienceTargetArray` | 视觉感知组 | 移动自主组、机械臂组、系统集成 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |
+| `/joint_states` | `sensor_msgs/JointState` | 机械臂组 | 机械臂组、系统集成 | PiPER 关节状态稳定发布 |
+| `/mission/state` | `base_interfaces/MissionState` | 系统集成 / 任务状态机 | 全员、记录系统 | 能追踪阶段、得分、剩余时间和故障 |
+| `/execute_mission` | `base_interfaces/ExecuteMission` action | 系统集成 / 任务状态机 | 比赛启动入口 | 可触发一次完整自主任务 |
 
 ## 开发分支
 
@@ -59,7 +56,7 @@ E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。
 | `localization/tf-slam` | TF、LiDAR、IMU、建图定位 | TF 树和定位数据验收通过 |
 | `nav/nav2` | Nav2、避障、返回基地 | 能完成离开基地和返回基地 |
 | `perception/detection` | RGB-D、补光、目标检测 | 能输出目标类别和置信度 |
-| `perception/target-pose` | 3D 位姿、坐标转换、抓取候选 | `/target_detections` 可被 B/F 消费 |
+| `perception/target-pose` | 3D 位姿、坐标转换、抓取候选 | `/target_detections` 可被移动自主组和机械臂组消费 |
 | `manipulation/piper` | PiPER、末端执行器、抓取放置 | 静态目标抓取和放置验收通过 |
 | `mission/state-machine` | 任务状态机、全流程调度 | 能串联 mock 或真实模块 |
 | `docs/*` | 文档、报告、检查单 | 与代码和实测结果一致 |
