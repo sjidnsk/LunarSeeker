@@ -249,6 +249,8 @@
 - 中期: 使用或实现 ROS2 SCOUT MINI 驱动节点，统一输出 `/odom`、`/tf`、`/cmd_vel`。
 - 长期: 接入 `ros2_control`，使底盘控制和状态反馈进入统一控制框架。
 
+官方 ROS2 `scout_ros2` 与本目录 ROS1 Scout 代码的详细差异见 [scout_ros2 与 tzb2026 Scout 基础代码对比](scout_ros2_vs_tzb2026_scout_ros.md)。结论是 `scout_ros2` 可作为 ROS2 底盘驱动候选，但不能整体替代 `scout_bringup` 中的雷达、建图、导航和传感器 TF 集成。
+
 ### 8.3 导航
 
 - 用 `slam_toolbox` 替代 `gmapping`。

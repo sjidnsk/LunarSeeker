@@ -39,3 +39,4 @@
 - [第三方依赖](references/third_party_dependencies.md)
 - [AgileX 平台参数归档](references/vendor_agilex_platform_parameters.md)
 - [tzb2026 厂商基础代码扫描分析报告](references/vendor_tzb2026_code_audit.md)
+- [scout_ros2 与 tzb2026 Scout 基础代码对比](references/scout_ros2_vs_tzb2026_scout_ros.md)
