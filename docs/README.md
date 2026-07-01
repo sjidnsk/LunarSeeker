@@ -17,6 +17,7 @@
 
 - [总体架构](design/architecture.md)
 - [系统基线](design/system_baseline.md)
+- [探索导航避障设计方案](design/navigation_planning.md)
 
 ## Engineering
 

@@ -344,7 +344,23 @@ perception/target-pose
 manipulation/mock-piper
 ```
 
-## 19. 不建议随手执行的命令
+## 19. Nav2 独立导航栈 P1
+
+该入口只启动 Nav2 navigation 栈，用于验证 planner、controller、costmap、behavior tree 和 velocity smoother 参数。它不启动 mock map、SLAM、AMCL、map_server、任务状态机或 `robot_state_publisher`；运行前必须由其他 bringup、mock 或 rosbag 提供 `/map`、`/tf`、`/odom` 和 `/scan`。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch base_bringup nav2_bringup.launch.py
+```
+
+查看启动参数:
+
+```bash
+ros2 launch base_bringup nav2_bringup.launch.py --show-args
+```
+
+## 20. 不建议随手执行的命令
 
 不要随手执行批量删除命令，例如:
 
@@ -354,7 +370,7 @@ rm -rf build install log
 
 如果确实需要清理构建产物，先确认 `build/`、`install/`、`log/` 中没有需要保留的日志、rosbag 或实验结果，再按团队文件管理规则处理。
 
-## 20. 当前阶段最常用命令
+## 21. 当前阶段最常用命令
 
 本机开发和离线验证时，最常用的是:
 
