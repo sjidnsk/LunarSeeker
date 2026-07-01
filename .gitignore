@@ -2,6 +2,14 @@ build/
 install/
 log/
 
+# Local validation outputs and ROS bag directories.
+bags/
+
+# Third-party and vendor source drops are tracked through docs/dependencies,
+# not committed directly to this repository.
+src/third_party/
+tzb2026/
+
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -20,4 +28,3 @@ env/
 
 .vscode/
 .idea/
-
