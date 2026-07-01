@@ -55,7 +55,7 @@ SCOUT MINI 与 PiPER 的公开重量口径叠加后已经接近或可能超过 3
 
 ## 待办
 
-- 对照 [vendor_agilex_platform_parameters.md](vendor_agilex_platform_parameters.md) 完成 SCOUT MINI、PiPER、Livox Mid360 等手册参数的离线归档。
+- 对照 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md) 完成 SCOUT MINI、PiPER、Livox Mid360 等手册参数的离线归档。
 - 建立实物称重记录表，记录时间、称重工具、照片和操作者。
 - 完成传感器、补光灯、主控、支架和线束选型后重新核算。
 - 完成 800 x 800 x 800 mm 出发包络测量，与重量风险一起评审。

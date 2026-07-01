@@ -117,7 +117,7 @@
 
 | 内容 | 地址 | 项目状态 |
 | --- | --- | --- |
-| SDK | https://github.com/agilexrobotics/piper_sdk | 已列入 `dependencies.repos`，commit 待锁定 |
+| SDK | https://github.com/agilexrobotics/piper_sdk | 已列入 `dependencies.repos`，当前导入版本见 [third_party_dependencies.md](third_party_dependencies.md)，commit 待硬件验证锁定 |
 | SDK-DEMO | https://github.com/agilexrobotics/piper_sdk/tree/master/demo | 待调试参考 |
 | SDK-UI | https://github.com/agilexrobotics/Piper_sdk_ui | 待人工评估 |
 | ROS1-NOETIC | https://github.com/agilexrobotics/Piper_ros/tree/ros-noetic-no-aloha | 非项目基线 |

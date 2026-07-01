@@ -6,17 +6,19 @@
 
 | 类别 | 基线配置 | 状态 |
 | --- | --- | --- |
-| 底盘 | AgileX SCOUT MINI | 待完成 ROS2 bringup |
-| 机械臂 | PiPER | 待完成 ROS2 Humble 驱动验证 |
-| 主视觉 | RealSense D435i 级 RGB-D 相机 | 型号、安装位和标定待定 |
-| 导航传感器 | 2D LiDAR | 型号、安装位和外参待定 |
-| 姿态传感器 | IMU | 型号、安装位和外参待定 |
+| 底盘 | AgileX SCOUT MINI | 实物已到；厂商 Noetic 流程车机测试通过；ROS2 bringup 待验证 |
+| 机械臂 | PiPER | 实物已到；厂商 Noetic 流程车机测试通过；ROS2 Humble 驱动待验证 |
+| 主视觉 | RealSense D435i 级 RGB-D 相机 | 线束已接入车机并固定；型号、安装位和 ROS2 标定待验证 |
+| 导航传感器 | 2D LiDAR / 厂商雷达配置参考 | 线束已接入车机并固定；型号、安装位和 ROS2 外参待验证 |
+| 姿态传感器 | IMU | 线束已接入车机并固定；型号、安装位和 ROS2 外参待验证 |
 | 辅助照明 | 补光灯 | 亮度、供电和重量待核算 |
 | 结构件 | 相机、雷达、机械臂、灯具支架 | 待设计和称重 |
 
+验证边界: 2026-07-01 记录，已按 `tzb2026/readme-2451.txt` 在车机执行厂商 ROS Noetic 流程测试，当前反馈为无问题。本机无法直接连接已固定到车机的传感器，因此本机验证限于 ROS2 构建、静态检查、mock/sim 和可离线测试项；真实硬件验证需部署到车机或 ROS2 主控执行。
+
 ## 供应商手册参考参数
 
-AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
+AgileX 语雀手册参数已归档到 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
 
 这些参数当前仅作为供应商手册参考值，仍需完成离线资料归档、实物称重、装配尺寸测量、CAN bringup 和传感器标定后，才能作为项目最终配置。特别是手册记录的 Livox Mid360 与当前 2D LiDAR 导航基线不完全一致，需要单独评审 Nav2、slam_toolbox 和点云处理方案。
 
@@ -32,8 +34,8 @@ AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](ven
 | 建图 | slam_toolbox |
 | 状态估计 | robot_localization |
 | 控制 | ros2_control |
-| 底盘驱动 | `scout_ros2`，来源见 `dependencies.repos`，分支和 commit 待锁定 |
-| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos`，commit 待锁定 |
+| 底盘驱动 | `scout_ros2` + `ugv_sdk`，来源见 `dependencies.repos` 和 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)，commit 待硬件验证锁定 |
+| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos` 和 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)，commit 待硬件验证锁定 |
 
 ## 坐标系约定
 
@@ -65,6 +67,6 @@ map
 
 - SCOUT MINI 驱动与 ROS2 Humble 的接口兼容性。
 - PiPER 驱动、机械臂控制器和 ros2_control 接入方式。
-- 传感器型号、安装高度、视场遮挡和外参标定。
+- 传感器型号、安装高度、视场遮挡和 ROS2 外参标定。
 - 供电、电磁干扰、线束运动余量和防脱落固定。
 - 总重和出发尺寸是否满足赛题硬约束。

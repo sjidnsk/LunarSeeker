@@ -55,7 +55,6 @@
 ## 来源追溯
 
 - 本地赛题 PDF: `D:/存储库/项目/挑战杯2026/官方文件/XH-202605_月球熔岩洞机器人智能自主采样任务.pdf`。
-- AgileX SCOUT MINI + PiPER 语雀手册: 已读取参数表，归档见 [vendor_agilex_platform_parameters.md](vendor_agilex_platform_parameters.md)，待离线保存。
-- `scout_ros2`: 已进入依赖清单，待记录验证 commit。
-- `piper_ros` humble: 已进入依赖清单，待记录验证 commit。
+- AgileX SCOUT MINI + PiPER 语雀手册: 已读取参数表，归档见 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md)，待离线保存。
+- `scout_ros2`、`ugv_sdk`、`piper_ros`、`piper_sdk`: 已进入依赖清单，当前导入版本见 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)，待硬件验证后锁定 commit。
 - 语雀手册链接: 已通过浏览器读取，仍需人工离线归档原始页面或官方副本。

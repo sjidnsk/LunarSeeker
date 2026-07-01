@@ -4,7 +4,19 @@
 
 项目近期目标是从文档基线进入可运行 ROS2 Humble 工作区，并逐步完成硬件、仿真、感知、导航、采样和端到端联调。
 
-团队分工、接口责任和分支策略见 [team_workflow.md](team_workflow.md)。研发推进时按成员负责的可验收能力检查进度，而不是按代码量检查进度。
+团队分工、接口责任和分支策略见 [../engineering/team_workflow.md](../engineering/team_workflow.md)。研发推进时按成员负责的可验收能力检查进度，而不是按代码量检查进度。
+
+车机从 Ubuntu 20.04 + ROS Noetic 过渡到 Ubuntu 22.04 + ROS2 Humble 的闭环路线见 [车机 ROS2 迁移技术路线](vehicle_ros2_migration_route.md)。该路线优先采用可回滚、可验证、逐模块替换策略，不直接把厂商 `tzb2026/` 代码整体改成 ROS2。
+
+## 当前状态
+
+- 阶段 0 初始化: 基础文档和 ROS2 工作区骨架已完成，`colcon build --symlink-install` 已于 2026-06-25 在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。
+- 当前硬件状态: SCOUT MINI、PiPER 和传感器实物已到；传感器线束已接入车机并上胶固定，本机不具备直接连接传感器进行实测的条件。
+- 车机 Noetic 基线: 2026-07-01 记录，已按 `tzb2026/readme-2451.txt` 在车机执行厂商 ROS Noetic 流程测试，当前反馈为无问题；该结论仅覆盖厂商原始 Noetic 流程，不等同于 ROS2 Humble 硬件 bringup 已完成。
+- 当前推进路径: 本机继续推进 ROS2 主线、mock/sim、构建和静态验证；涉及真实底盘、PiPER、雷达、相机、IMU 的验证需要将代码部署到车机或 ROS2 主控后执行。
+- Mock/sim 状态: 已验证 mock 目标、mock 导航状态、基础传感器 topic、任务 action 和 rosbag 记录，详见 [../validation/mock_bringup_validation.md](../validation/mock_bringup_validation.md)。
+- 阶段 1 硬件 Bringup 状态: ROS2 Humble 实车 bringup 待部署到车机验证，不视为已完成。
+- 仍需保持待验证状态: 重量、尺寸、传感器外参、支架方案、第三方 ROS2 驱动 commit 和 ROS2 硬件实测指标。
 
 ## 阶段 0: 初始化
 
@@ -20,7 +32,7 @@
 
 - 文档可以支撑后续代码、依赖和硬件任务拆分。
 - 每个成员有明确主责、交付物、接口消费者和验收标准。
-- `colcon build --symlink-install` 在 Ubuntu 22.04 + ROS2 Humble 环境中可通过。
+- `colcon build --symlink-install` 已于 2026-06-25 在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。
 - 未验证事实均标注待验证、待归档或待称重。
 
 ## 阶段 1: 硬件 Bringup
