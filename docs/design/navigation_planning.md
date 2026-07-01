@@ -74,13 +74,13 @@ Nav2
 | `/goal_pose` | `geometry_msgs/PoseStamped` | RViz / mock Nav2 | 调试目标点 | 已有 mock 出口 |
 | `/navigation/search_path` | `nav_msgs/Path` | RViz | frontier 候选排序显示 | 已实现 |
 | `/navigation/search_markers` | `visualization_msgs/MarkerArray` | RViz | 搜索、目标和恢复可视化 | 已实现 |
-| `/navigation/status` | 待定义，建议先用 `std_msgs/String` 或诊断 topic | `base_mission` / 日志 | 导航模式、结果和失败原因 | 待设计 |
+| `/navigation/status` | `base_interfaces/NavigationStatus` | `base_mission` / 日志 | 导航模式、目标类型、Nav2 action 结果和恢复摘要 | P2 输出 |
 
 接口原则:
 
 - `/goal_pose` 保留为调试出口，不作为正式任务状态机的唯一控制接口。
 - 正式自主任务由 `algo_navigation` 内的协调节点调用 `/navigate_to_pose`，并将成功、失败、取消、超时原因反馈给 `base_mission`。
-- 如需新增 `/navigation/status` 或 action，应先评审是否已有 `NavigateToPose` 结果足够表达，避免重复 schema。
+- `/navigation/status` 为 P2 自定义状态消息；后续字段变更必须同步 `base_interfaces`、本文和团队接口表。
 
 ## 坐标系与地图前提
 
@@ -447,7 +447,7 @@ if remaining_time_sec < estimated_return_sec + placement_time_sec + recovery_mar
 
 - `algo_navigation` 新增正式协调节点，名称建议 `navigation_coordinator`。
 - 输入 `/mission/state`、`/target_detections`、`/map`。
-- 输出 `/navigate_to_pose` action goal 和导航状态。
+- 输出 `/navigate_to_pose` action goal 和 `base_interfaces/NavigationStatus` 导航状态。
 
 验收:
 

@@ -89,6 +89,7 @@ base_mission
 | `/goal_pose` | `geometry_msgs/PoseStamped` | Nav2 目标点 |
 | `/navigation/search_path` | `nav_msgs/Path` | frontier 候选 RViz 调试路径，不参与控制 |
 | `/navigation/search_markers` | `visualization_msgs/MarkerArray` | 任务区域、frontier 候选、当前目标和接近点 RViz 调试标记 |
+| `/navigation/status` | `base_interfaces/NavigationStatus` | Nav2 action 协调节点输出的导航状态、目标类型、失败和恢复摘要 |
 | `/navigate_to_pose` | action | Nav2 单目标导航 |
 | `/local_costmap/costmap` | `nav_msgs/OccupancyGrid` | 局部代价地图 |
 

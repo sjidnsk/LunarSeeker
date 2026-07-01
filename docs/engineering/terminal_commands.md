@@ -123,6 +123,7 @@ use_mock_hardware:=true mission_time_limit_sec:=600
 
 ```bash
 ros2 interface show base_interfaces/msg/MissionState
+ros2 interface show base_interfaces/msg/NavigationStatus
 ros2 interface show base_interfaces/msg/ScienceTarget
 ros2 interface show base_interfaces/msg/ScienceTargetArray
 ros2 interface show base_interfaces/action/ExecuteMission
@@ -360,7 +361,23 @@ ros2 launch base_bringup nav2_bringup.launch.py
 ros2 launch base_bringup nav2_bringup.launch.py --show-args
 ```
 
-## 20. 不建议随手执行的命令
+## 20. Nav2 action 协调节点 P2
+
+该入口只启动 `navigation_coordinator`，用于把 `/mission/state`、`/map`、`/target_detections` 和 Nav2 `/navigate_to_pose` action 串联起来。它不启动 Nav2 栈、mock map、任务状态机或底盘传感器；运行前需由其他入口提供 Nav2、TF、地图和传感器输入。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch algo_navigation navigation_coordinator.launch.py
+```
+
+查看结构化导航状态:
+
+```bash
+ros2 topic echo /navigation/status
+```
+
+## 21. 不建议随手执行的命令
 
 不要随手执行批量删除命令，例如:
 
@@ -370,7 +387,7 @@ rm -rf build install log
 
 如果确实需要清理构建产物，先确认 `build/`、`install/`、`log/` 中没有需要保留的日志、rosbag 或实验结果，再按团队文件管理规则处理。
 
-## 21. 当前阶段最常用命令
+## 22. 当前阶段最常用命令
 
 本机开发和离线验证时，最常用的是:
 

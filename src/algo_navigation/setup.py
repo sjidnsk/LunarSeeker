@@ -25,6 +25,7 @@ setup(
         "console_scripts": [
             "mock_frontier_map = algo_navigation.mock_frontier_map:main",
             "mock_navigation = algo_navigation.mock_navigation:main",
+            "navigation_coordinator = algo_navigation.navigation_coordinator:main",
             "navigation_visualizer = algo_navigation.navigation_visualization:main",
         ],
     },

@@ -22,6 +22,10 @@ except ImportError:  # Allows non-ROS unit tests to import this module.
     ScienceTargetArray = None
 
 try:
+    from .navigation_goals import (
+        FIXED_GOAL_POSES,
+        goal_label_for_phase,
+    )
     from .search_strategy import (
         FrontierSelectionConfig,
         NavigationGoal,
@@ -32,6 +36,10 @@ try:
         normalize_angle,
     )
 except ImportError:  # Allows direct importlib loading in unit tests.
+    from algo_navigation.navigation_goals import (
+        FIXED_GOAL_POSES,
+        goal_label_for_phase,
+    )
     from algo_navigation.search_strategy import (
         FrontierSelectionConfig,
         NavigationGoal,
@@ -41,34 +49,6 @@ except ImportError:  # Allows direct importlib loading in unit tests.
         select_frontier_goal,
         normalize_angle,
     )
-
-
-PHASE_GOALS = {
-    "ready": "standby",
-    "departure": "base_exit",
-    "exploration": "frontier_exploration",
-    "approach": "selected_target",
-    "sample": "hold_position",
-    "return": "base_return",
-    "unload": "sample_drop_zone",
-    "complete": "mission_complete",
-    "fault": "safe_stop",
-}
-
-FIXED_GOAL_POSES = {
-    "standby": (0.0, 0.0, 0.0),
-    "base_exit": (0.8, 0.0, 0.0),
-    "frontier_waiting_for_map": (0.0, 0.0, 0.0),
-    "hold_position": (1.2, 0.22, 0.0),
-    "base_return": (0.2, 0.0, 0.0),
-    "sample_drop_zone": (-0.3, 0.0, 0.0),
-    "mission_complete": (0.0, 0.0, 0.0),
-    "safe_stop": (0.0, 0.0, 0.0),
-}
-
-
-def goal_label_for_phase(phase_name: str) -> str:
-    return PHASE_GOALS.get(phase_name, "standby")
 
 
 class MockNavigation(Node):

@@ -14,6 +14,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ScienceTarget.msg"
   "msg/ScienceTargetArray.msg"
   "msg/MissionState.msg"
+  "msg/NavigationStatus.msg"
   "action/ExecuteMission.action"
   DEPENDENCIES geometry_msgs std_msgs
 )
