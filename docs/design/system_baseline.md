@@ -16,7 +16,7 @@
 
 ## 供应商手册参考参数
 
-AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
+AgileX 语雀手册参数已归档到 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
 
 这些参数当前仅作为供应商手册参考值，仍需完成离线资料归档、实物称重、装配尺寸测量、CAN bringup 和传感器标定后，才能作为项目最终配置。特别是手册记录的 Livox Mid360 与当前 2D LiDAR 导航基线不完全一致，需要单独评审 Nav2、slam_toolbox 和点云处理方案。
 
@@ -32,8 +32,8 @@ AgileX 语雀手册参数已归档到 [vendor_agilex_platform_parameters.md](ven
 | 建图 | slam_toolbox |
 | 状态估计 | robot_localization |
 | 控制 | ros2_control |
-| 底盘驱动 | `scout_ros2` + `ugv_sdk`，来源见 `dependencies.repos` 和 [third_party_dependencies.md](third_party_dependencies.md)，commit 待硬件验证锁定 |
-| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos` 和 [third_party_dependencies.md](third_party_dependencies.md)，commit 待硬件验证锁定 |
+| 底盘驱动 | `scout_ros2` + `ugv_sdk`，来源见 `dependencies.repos` 和 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)，commit 待硬件验证锁定 |
+| 机械臂驱动 | `piper_ros` humble + `piper_sdk`，来源见 `dependencies.repos` 和 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)，commit 待硬件验证锁定 |
 
 ## 坐标系约定
 

@@ -3,7 +3,7 @@
 ## 管理原则
 
 - 第三方源码不直接提交到本仓库。
-- 第三方仓库统一记录在根目录 [dependencies.repos](../dependencies.repos)。
+- 第三方仓库统一记录在根目录 [dependencies.repos](../../dependencies.repos)。
 - 本地源码默认导入到 `src/third_party/`，该目录已加入 `.gitignore`。
 - 当前小车尚未到位，以下 commit 仅作为当前导入版本记录，状态均为待硬件验证，不等同于已锁定参赛版本。
 - 硬件 Bringup 通过后，再将 `dependencies.repos` 中对应 `version` 从分支名改为已验证 commit。

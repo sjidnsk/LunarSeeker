@@ -18,14 +18,14 @@ base_mission
 
 ## 接口冻结原则
 
-跨模块接口以 `src/base_bringup/config/robot_profile.yaml`、`src/base_interfaces` 和本文档为准。任务分工、接口生产者/消费者和分支策略见 [team_workflow.md](team_workflow.md)。
+跨模块接口以 `src/base_bringup/config/robot_profile.yaml`、`src/base_interfaces` 和本文档为准。任务分工、接口生产者/消费者和分支策略见 [../engineering/team_workflow.md](../engineering/team_workflow.md)。
 
 任何 topic、frame、消息字段或 action 名称变更，都必须同步更新:
 
 - `src/base_interfaces`
 - `src/base_bringup/config/robot_profile.yaml`
 - 本文档中的接口表
-- [team_workflow.md](team_workflow.md) 中的责任人和验收标准
+- [../engineering/team_workflow.md](../engineering/team_workflow.md) 中的责任人和验收标准
 
 ## 感知
 

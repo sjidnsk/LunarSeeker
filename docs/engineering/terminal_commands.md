@@ -74,7 +74,7 @@ rosdep update
 vcs import . < dependencies.repos
 ```
 
-第三方源码会导入到 `src/third_party/`，该目录不直接提交到主仓库。当前导入版本和待验证状态见 [third_party_dependencies.md](third_party_dependencies.md)。
+第三方源码会导入到 `src/third_party/`，该目录不直接提交到主仓库。当前导入版本和待验证状态见 [../references/third_party_dependencies.md](../references/third_party_dependencies.md)。
 
 ## 6. 安装 ROS 依赖
 
@@ -299,7 +299,7 @@ git checkout -b simulation/mock-bringup
 提交变更:
 
 ```bash
-git add README.md docs/team_workflow.md
+git add README.md docs/engineering/team_workflow.md
 git commit -m "Update mock bringup workflow"
 git push -u origin simulation/mock-bringup
 ```

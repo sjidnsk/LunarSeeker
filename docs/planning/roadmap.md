@@ -4,13 +4,15 @@
 
 项目近期目标是从文档基线进入可运行 ROS2 Humble 工作区，并逐步完成硬件、仿真、感知、导航、采样和端到端联调。
 
-团队分工、接口责任和分支策略见 [team_workflow.md](team_workflow.md)。研发推进时按成员负责的可验收能力检查进度，而不是按代码量检查进度。
+团队分工、接口责任和分支策略见 [../engineering/team_workflow.md](../engineering/team_workflow.md)。研发推进时按成员负责的可验收能力检查进度，而不是按代码量检查进度。
+
+车机从 Ubuntu 20.04 + ROS Noetic 过渡到 Ubuntu 22.04 + ROS2 Humble 的闭环路线见 [车机 ROS2 迁移技术路线](vehicle_ros2_migration_route.md)。该路线优先采用可回滚、可验证、逐模块替换策略，不直接把厂商 `tzb2026/` 代码整体改成 ROS2。
 
 ## 当前状态
 
 - 阶段 0 初始化: 基础文档和 ROS2 工作区骨架已完成，`colcon build --symlink-install` 已于 2026-06-25 在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。
 - 当前推进路径: 小车尚未到位，阶段 1 实车硬件 Bringup 暂缓，先推进 mock/sim 仿真链路。
-- Mock/sim 状态: 已验证 mock 目标、mock 导航状态、基础传感器 topic、任务 action 和 rosbag 记录，详见 [mock_bringup_validation.md](mock_bringup_validation.md)。
+- Mock/sim 状态: 已验证 mock 目标、mock 导航状态、基础传感器 topic、任务 action 和 rosbag 记录，详见 [../engineering/mock_bringup_validation.md](../engineering/mock_bringup_validation.md)。
 - 阶段 1 硬件 Bringup 状态: 待硬件到位后启动，不视为已完成或已验证。
 - 仍需保持待验证状态: 重量、尺寸、传感器安装、线束、支架方案、第三方驱动 commit 和硬件实测指标。
 
