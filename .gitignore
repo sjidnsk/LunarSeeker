@@ -3,6 +3,7 @@ install/
 log/
 
 src/third_party/
+tzb2026/
 
 __pycache__/
 *.py[cod]
