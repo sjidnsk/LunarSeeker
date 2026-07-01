@@ -1,0 +1,107 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 0.5
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Name: Grid
+      Plane: XY
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Color: 65; 140; 255
+      Enabled: true
+      Head Diameter: 0.12
+      Head Length: 0.18
+      Length: 0.2
+      Line Style: Lines
+      Line Width: 0.04
+      Name: Search Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 200; 40
+      Pose Style: Arrows
+      Radius: 0.04
+      Topic:
+        Value: /navigation/search_path
+      Value: true
+    - Alpha: 0.7
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: true
+      Enabled: true
+      Name: Occupancy Map
+      Topic:
+        Value: /map
+      Update Topic:
+        Value: /map_updates
+      Use Timestamp: false
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Marker Topic:
+        Value: /navigation/search_markers
+      Name: Search Markers
+      Namespaces:
+        approach_goal: true
+        current_goal: true
+        frontier_candidates: true
+        frontier_labels: true
+        task_area_border: true
+        task_area_fill: true
+        task_area_label: true
+        target_detection: true
+      Value: true
+    - Alpha: 1
+      Axes Length: 0.4
+      Axes Radius: 0.04
+      Class: rviz_default_plugins/Pose
+      Color: 255; 198; 30
+      Enabled: true
+      Head Length: 0.25
+      Head Radius: 0.08
+      Name: Goal Pose
+      Shaft Length: 0.35
+      Shaft Radius: 0.03
+      Shape: Arrow
+      Topic:
+        Value: /goal_pose
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 36; 39; 42
+    Fixed Frame: odom
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 6
+      Focal Point:
+        X: 1.5
+        Y: 0
+        Z: 0
+      Name: Current View
+      Pitch: 1.2
+      Target Frame: <Fixed Frame>
+      Yaw: 1.57
+Window Geometry:
+  Height: 900
+  Width: 1200
+  X: 80
+  Y: 60

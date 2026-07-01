@@ -5,34 +5,40 @@ import math
 try:
     import rclpy
     from geometry_msgs.msg import PoseStamped
+    from nav_msgs.msg import OccupancyGrid
     from rclpy.node import Node
+    from rclpy.executors import ExternalShutdownException
     from std_msgs.msg import String
 
     from base_interfaces.msg import MissionState, ScienceTargetArray
 except ImportError:  # Allows non-ROS unit tests to import this module.
     rclpy = None
     PoseStamped = None
+    OccupancyGrid = None
     Node = object
+    ExternalShutdownException = RuntimeError
     String = None
     MissionState = None
     ScienceTargetArray = None
 
 try:
     from .search_strategy import (
+        FrontierSelectionConfig,
         NavigationGoal,
+        OccupancyGridData,
         SearchArea,
         approach_goal_for_target,
-        generate_lawnmower_goals,
-        goal_by_index,
+        select_frontier_goal,
         normalize_angle,
     )
 except ImportError:  # Allows direct importlib loading in unit tests.
     from algo_navigation.search_strategy import (
+        FrontierSelectionConfig,
         NavigationGoal,
+        OccupancyGridData,
         SearchArea,
         approach_goal_for_target,
-        generate_lawnmower_goals,
-        goal_by_index,
+        select_frontier_goal,
         normalize_angle,
     )
 
@@ -40,7 +46,7 @@ except ImportError:  # Allows direct importlib loading in unit tests.
 PHASE_GOALS = {
     "ready": "standby",
     "departure": "base_exit",
-    "exploration": "search_zone_a",
+    "exploration": "frontier_exploration",
     "approach": "selected_target",
     "sample": "hold_position",
     "return": "base_return",
@@ -52,7 +58,7 @@ PHASE_GOALS = {
 FIXED_GOAL_POSES = {
     "standby": (0.0, 0.0, 0.0),
     "base_exit": (0.8, 0.0, 0.0),
-    "search_zone_a": (2.0, 0.4, 0.0),
+    "frontier_waiting_for_map": (0.0, 0.0, 0.0),
     "hold_position": (1.2, 0.22, 0.0),
     "base_return": (0.2, 0.0, 0.0),
     "sample_drop_zone": (-0.3, 0.0, 0.0),
@@ -72,18 +78,22 @@ class MockNavigation(Node):
         super().__init__("mock_navigation")
         self.declare_parameter("map_frame_id", "odom")
         self.declare_parameter("publish_rate_hz", 2.0)
-        self.declare_parameter("search_area.min_x", 1.0)
-        self.declare_parameter("search_area.max_x", 2.8)
-        self.declare_parameter("search_area.min_y", -0.6)
-        self.declare_parameter("search_area.max_y", 0.6)
-        self.declare_parameter("search_lane_spacing_m", 0.4)
-        self.declare_parameter("search_waypoint_hold_sec", 4.0)
+        self.declare_parameter("robot_pose.x", 0.0)
+        self.declare_parameter("robot_pose.y", 0.0)
+        self.declare_parameter("frontier.occupied_threshold", 50)
+        self.declare_parameter("frontier.min_cluster_size", 3)
+        self.declare_parameter("task_area.enabled", True)
+        self.declare_parameter("task_area.min_x", 1.6)
+        self.declare_parameter("task_area.max_x", 3.2)
+        self.declare_parameter("task_area.min_y", -0.8)
+        self.declare_parameter("task_area.max_y", 0.8)
+        self.declare_parameter("task_area.distance_weight", 4.0)
+        self.declare_parameter("task_area.inside_bonus", 100.0)
         self.declare_parameter("target_standoff_m", 0.45)
 
         self._phase_name = "ready"
         self._selected_target_pose = None
-        self._search_started_at = None
-        self._search_goals = self._build_search_goals()
+        self._latest_map = None
         self._goal_pub = self.create_publisher(PoseStamped, "/goal_pose", 10)
         self._status_pub = self.create_publisher(String, "/mock/navigation_status", 10)
         self._mission_sub = self.create_subscription(
@@ -98,13 +108,17 @@ class MockNavigation(Node):
             self._target_callback,
             10,
         )
+        self._map_sub = self.create_subscription(
+            OccupancyGrid,
+            "/map",
+            self._map_callback,
+            10,
+        )
 
         rate_hz = float(self.get_parameter("publish_rate_hz").value)
         self.create_timer(1.0 / max(rate_hz, 0.1), self._publish_navigation_state)
 
     def _mission_callback(self, state) -> None:
-        if state.phase_name != self._phase_name and state.phase_name == "exploration":
-            self._search_started_at = self.get_clock().now()
         self._phase_name = state.phase_name
 
     def _target_callback(self, detections) -> None:
@@ -115,6 +129,9 @@ class MockNavigation(Node):
         ]
         if selected:
             self._selected_target_pose = selected[0].pose
+
+    def _map_callback(self, occupancy_grid) -> None:
+        self._latest_map = occupancy_grid
 
     def _publish_navigation_state(self) -> None:
         goal_label = goal_label_for_phase(self._phase_name)
@@ -145,14 +162,30 @@ class MockNavigation(Node):
                 target_goal.label,
             )
 
-        if goal_label == "search_zone_a":
-            search_goal = goal_by_index(self._search_goals, self._search_goal_index())
+        if goal_label == "frontier_exploration":
+            frontier_goal = self._build_frontier_goal()
+            if frontier_goal is None:
+                x, y, z = FIXED_GOAL_POSES["frontier_waiting_for_map"]
+                waiting_goal = NavigationGoal(
+                    label="frontier_waiting_for_map",
+                    x=x,
+                    y=y,
+                    yaw=0.0,
+                )
+                goal = self._pose_from_navigation_goal(
+                    waiting_goal,
+                    str(self.get_parameter("map_frame_id").value),
+                )
+                goal.pose.position.z = z
+                return goal, waiting_goal.label
+
             return (
                 self._pose_from_navigation_goal(
-                    search_goal,
-                    str(self.get_parameter("map_frame_id").value),
+                    frontier_goal,
+                    self._latest_map.header.frame_id
+                    or str(self.get_parameter("map_frame_id").value),
                 ),
-                search_goal.label,
+                frontier_goal.label,
             )
 
         x, y, z = FIXED_GOAL_POSES.get(goal_label, FIXED_GOAL_POSES["standby"])
@@ -176,27 +209,48 @@ class MockNavigation(Node):
         goal.pose.orientation.w = qw
         return goal
 
-    def _build_search_goals(self) -> list[NavigationGoal]:
-        area = SearchArea(
-            min_x=float(self.get_parameter("search_area.min_x").value),
-            max_x=float(self.get_parameter("search_area.max_x").value),
-            min_y=float(self.get_parameter("search_area.min_y").value),
-            max_y=float(self.get_parameter("search_area.max_y").value),
-        )
-        return generate_lawnmower_goals(
-            area,
-            float(self.get_parameter("search_lane_spacing_m").value),
+    def _build_frontier_goal(self) -> NavigationGoal | None:
+        if self._latest_map is None:
+            return None
+
+        return select_frontier_goal(
+            self._grid_data_from_map(self._latest_map),
+            robot_x=float(self.get_parameter("robot_pose.x").value),
+            robot_y=float(self.get_parameter("robot_pose.y").value),
+            config=self._build_frontier_config(),
         )
 
-    def _search_goal_index(self) -> int:
-        if self._search_started_at is None:
-            self._search_started_at = self.get_clock().now()
+    def _grid_data_from_map(self, occupancy_grid) -> OccupancyGridData:
+        return OccupancyGridData(
+            width=int(occupancy_grid.info.width),
+            height=int(occupancy_grid.info.height),
+            resolution=float(occupancy_grid.info.resolution),
+            origin_x=float(occupancy_grid.info.origin.position.x),
+            origin_y=float(occupancy_grid.info.origin.position.y),
+            data=list(occupancy_grid.data),
+        )
 
-        elapsed_sec = (
-            self.get_clock().now() - self._search_started_at
-        ).nanoseconds / 1e9
-        hold_sec = max(float(self.get_parameter("search_waypoint_hold_sec").value), 0.1)
-        return int(elapsed_sec // hold_sec)
+    def _build_frontier_config(self) -> FrontierSelectionConfig:
+        task_area = None
+        if bool(self.get_parameter("task_area.enabled").value):
+            task_area = SearchArea(
+                min_x=float(self.get_parameter("task_area.min_x").value),
+                max_x=float(self.get_parameter("task_area.max_x").value),
+                min_y=float(self.get_parameter("task_area.min_y").value),
+                max_y=float(self.get_parameter("task_area.max_y").value),
+            )
+
+        return FrontierSelectionConfig(
+            occupied_threshold=int(self.get_parameter("frontier.occupied_threshold").value),
+            min_cluster_size=int(self.get_parameter("frontier.min_cluster_size").value),
+            task_area=task_area,
+            task_area_distance_weight=float(
+                self.get_parameter("task_area.distance_weight").value
+            ),
+            task_area_inside_bonus=float(
+                self.get_parameter("task_area.inside_bonus").value
+            ),
+        )
 
     def _yaw_to_quaternion_z_w(self, yaw: float) -> tuple[float, float]:
         normalized = normalize_angle(yaw)
@@ -211,7 +265,7 @@ def main(args=None) -> None:
     node = MockNavigation()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()

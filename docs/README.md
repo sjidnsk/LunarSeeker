@@ -24,6 +24,7 @@
 
 - [团队协作](engineering/team_workflow.md)
 - [终端命令](engineering/terminal_commands.md)
+- [导航搜索可视化](engineering/navigation_visualization.md)
 
 ## Validation
 

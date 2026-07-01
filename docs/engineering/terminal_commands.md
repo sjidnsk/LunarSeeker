@@ -173,7 +173,35 @@ ros2 node info /mock_navigation
 ros2 node info /mock_manipulation
 ```
 
-## 12. 调用任务 Action
+## 12. 导航搜索可视化
+
+启动 `algo_navigation` 的独立 RViz 调试入口:
+
+```bash
+ros2 launch algo_navigation navigation_visualization.launch.py
+```
+
+该入口只用于导航搜索算法调试，会启动 `mock_frontier_map`、`mock_navigation`、`navigation_visualizer` 和 RViz。当前探索策略为 frontier exploration：从 `/map` 中寻找已知自由区和未知区边界，并优先选择靠近或位于指定任务区域的 frontier。默认使用 `odom` 作为 mock 调试坐标系；接入 Nav2 / slam_toolbox / robot_localization 后再按实际 TF 切换到 `map`。
+
+显式指定任务区域:
+
+```bash
+ros2 launch algo_navigation navigation_visualization.launch.py \
+  task_area.min_x:=1.6 task_area.max_x:=3.2 \
+  task_area.min_y:=-0.8 task_area.max_y:=0.8
+```
+
+查看可视化 topic:
+
+```bash
+ros2 topic echo /navigation/search_path
+ros2 topic echo /navigation/search_markers
+ros2 topic echo /map
+```
+
+更多说明见 [导航搜索可视化](navigation_visualization.md)。
+
+## 13. 调用任务 Action
 
 查看 action:
 
@@ -188,7 +216,7 @@ ros2 action info /execute_mission
 ros2 action send_goal /execute_mission base_interfaces/action/ExecuteMission "{run_index: 1, use_mock_hardware: true, profile_name: 'mock'}"
 ```
 
-## 13. TF 检查
+## 14. TF 检查
 
 生成 TF 树:
 
@@ -206,7 +234,7 @@ ros2 run tf2_ros tf2_echo base_link lidar_link
 ros2 run tf2_ros tf2_echo base_link piper_base_link
 ```
 
-## 14. 录制与回放 Rosbag
+## 15. 录制与回放 Rosbag
 
 录制关键 topic:
 
@@ -232,7 +260,7 @@ ros2 bag info bags/mock_run_001
 ros2 bag play bags/mock_run_001
 ```
 
-## 15. 测试
+## 16. 测试
 
 运行全部测试:
 
