@@ -102,7 +102,7 @@ colcon build --symlink-install --packages-select base_mission
 
 ## 8. 运行 Mock Bringup
 
-硬件未到位时，先运行 mock/sim 启动入口:
+本机不直连已固定到车机的真实传感器时，先运行 mock/sim 启动入口:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -249,7 +249,7 @@ colcon test --packages-select base_bringup
 colcon test-result --verbose
 ```
 
-## 16. CAN 检查，硬件到位后使用
+## 16. CAN 检查，车机硬件验证时使用
 
 查看 CAN 设备:
 
@@ -328,7 +328,7 @@ rm -rf build install log
 
 ## 20. 当前阶段最常用命令
 
-硬件未到位时，最常用的是:
+本机开发和离线验证时，最常用的是:
 
 ```bash
 source /opt/ros/humble/setup.bash

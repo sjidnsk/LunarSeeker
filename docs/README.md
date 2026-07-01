@@ -20,11 +20,17 @@
 
 ## Engineering
 
-面向日常协作、命令和验证记录。
+面向日常协作、命令和工程流程。
 
 - [团队协作](engineering/team_workflow.md)
 - [终端命令](engineering/terminal_commands.md)
-- [Mock/sim 验证记录](engineering/mock_bringup_validation.md)
+
+## Validation
+
+面向构建、mock/sim、车机、硬件和端到端流程的验证记录。
+
+- [Mock/sim 验证记录](validation/mock_bringup_validation.md)
+- [车机 Noetic 基线验证记录](validation/vehicle_noetic_baseline_validation.md)
 
 ## References
 

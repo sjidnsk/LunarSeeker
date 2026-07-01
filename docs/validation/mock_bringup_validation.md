@@ -5,7 +5,7 @@
 - 日期: 2026-06-25
 - 系统基线: Ubuntu 22.04 + ROS2 Humble + Python 3.10
 - 分支: `simulation/mock-bringup`
-- 目标: 小车未到位时，验证 mock/sim 启动、基础 TF、任务状态机、mock 目标、mock 导航状态和基础 rosbag。
+- 目标: 在本机不直连实车传感器的条件下，验证 mock/sim 启动、基础 TF、任务状态机、mock 目标、mock 导航状态和基础 rosbag。
 
 ## 启动命令
 
@@ -91,4 +91,4 @@ Messages: 842
 - `mock_navigation` 只按任务阶段发布目标点和状态，不包含 Nav2 规划、局部避障或恢复行为。
 - `/target_detections` 中的目标为固定 mock 位姿，尚未接入 RGB-D 感知、深度定位或误检处理。
 - PiPER 抓取、放置、失败重试目前仅由 `/mock/manipulation_status` 表达状态序列，尚未接入真实 PiPER 驱动或轨迹控制。
-- 小车和硬件到位后，仍需按阶段 1 重新验证底盘、PiPER、RGB-D、LiDAR、IMU 和外参。
+- 当前硬件已到且传感器线束已固定到车机；真实底盘、PiPER、RGB-D、LiDAR、IMU 和外参仍需按阶段 1 部署到车机或 ROS2 主控重新验证。

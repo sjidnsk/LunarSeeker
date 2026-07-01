@@ -19,11 +19,13 @@
 
 ## 2. 来源与归档状态
 
-本报告仅基于本地 `tzb2026/` 目录静态扫描，未联网校验上游最新版本，未执行硬件联调，未执行完整构建。
+本报告的源码结构、依赖和许可证判断基于本地 `tzb2026/` 目录静态扫描，未联网校验上游最新版本，未执行完整构建。
+
+2026-07-01 补充验证状态: 团队已按 `tzb2026/readme-2451.txt` 在车机执行厂商 ROS Noetic 流程测试，当前反馈为无问题。该记录只说明厂商原始 Noetic 流程可作为硬件 fallback 基线，不代表本仓库 ROS2 Humble 主线或第三方 ROS2 驱动已完成实车验收。
 
 | 来源目录 | 上游线索 | 当前提交/分支线索 | 状态 |
 | --- | --- | --- | --- |
-| `tzb2026/readme-2451.txt` | 厂商随包手册 | 本地文本 | 待归档 |
+| `tzb2026/readme-2451.txt` | 厂商随包手册 | 本地文本 | 待归档；2026-07-01 已按车机 Noetic 环境测试通过 |
 | `tzb2026/src/Piper_ros` | `https://github.com/agilexrobotics/Piper_ros.git` | `c1b78fd`, `ros-noetic-no-aloha` | 待验证 |
 | `tzb2026/src/navigation` | `https://gitee.com/agilexrobotics/navigation.git` | `5c7a79d`, `master` 本地领先 1 | 待验证 |
 | `tzb2026/src/realsense-ros` | `https://github.com/IntelRealSense/realsense-ros.git` | `e4938bb`, `development` | 待验证 |
@@ -194,7 +196,9 @@
 7. 机械臂:
    - `roslaunch piper start_single_piper_rviz.launch`
 
-迁移到本仓库时，上述流程只能作为硬件拓扑和话题意图参考。ROS2 版本应改写为 `ros2 launch`、Nav2、slam_toolbox、MoveIt 2、`ros2_control` 和 ROS2 参数文件。
+2026-07-01 记录: 上述厂商流程已在车机 Noetic 环境按手册执行测试，当前反馈为无问题。由于传感器线束已连接到车机并上胶固定，本机不作为真实传感器测试环境。
+
+迁移到本仓库时，上述流程只能作为硬件拓扑、回退基线和话题意图参考。ROS2 版本应改写为 `ros2 launch`、Nav2、slam_toolbox、MoveIt 2、`ros2_control` 和 ROS2 参数文件，并在车机或 ROS2 主控上重新验收。
 
 ## 6. 与本项目基线的差异
 
@@ -302,7 +306,7 @@
 
 - 待归档: 保存厂商原始交付包、校验值、交付日期和版本说明。
 - 待验证: 在 Ubuntu 22.04 + ROS2 Humble 上单独验证 `rslidar_sdk` ROS2 构建。
-- 待验证: 确认 SCOUT MINI 底盘 CAN 口 `can0`、PiPER CAN 口 `can_piper` 的 udev/SocketCAN 配置。
+- 已按厂商 Noetic 流程测试: SCOUT MINI 底盘 CAN 口 `can0`、PiPER CAN 口 `can_piper` 在车机手册流程中当前反馈无问题；ROS2 udev/SocketCAN 配置仍待验证。
 - 待测量: 雷达、相机、IMU、机械臂相对 `base_link` 的实际安装位姿。
 - 待测量: PiPER 关节限位、夹爪行程、速度、加速度是否与厂商文档一致。
 - 待验证: 两台 RealSense 序列号是否对应当前实物。

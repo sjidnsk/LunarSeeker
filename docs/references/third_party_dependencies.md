@@ -5,7 +5,9 @@
 - 第三方源码不直接提交到本仓库。
 - 第三方仓库统一记录在根目录 [dependencies.repos](../../dependencies.repos)。
 - 本地源码默认导入到 `src/third_party/`，该目录已加入 `.gitignore`。
-- 当前小车尚未到位，以下 commit 仅作为当前导入版本记录，状态均为待硬件验证，不等同于已锁定参赛版本。
+- 当前硬件已到，传感器线束已接入车机并上胶固定；本机不作为真实传感器直连测试环境。
+- 以下 commit 仅作为当前导入版本记录，状态均为待 ROS2 硬件验证，不等同于已锁定参赛版本。
+- 厂商 ROS Noetic 流程已按 `tzb2026/readme-2451.txt` 在车机测试通过，但不代表以下 ROS2 依赖已完成实机验收。
 - 硬件 Bringup 通过后，再将 `dependencies.repos` 中对应 `version` 从分支名改为已验证 commit。
 
 ## 当前导入版本
