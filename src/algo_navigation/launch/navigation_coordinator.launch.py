@@ -11,6 +11,9 @@ def generate_launch_description():
     navigate_action_name = LaunchConfiguration("navigate_action_name")
     status_topic = LaunchConfiguration("status_topic")
     target_standoff_m = LaunchConfiguration("target_standoff_m")
+    frontier_blacklist_ttl_sec = LaunchConfiguration("frontier_blacklist_ttl_sec")
+    frontier_blacklist_radius_m = LaunchConfiguration("frontier_blacklist_radius_m")
+    nav_retry_limit = LaunchConfiguration("nav_retry_limit")
 
     return LaunchDescription(
         [
@@ -39,6 +42,21 @@ def generate_launch_description():
                 default_value="0.45",
                 description="Target approach standoff distance in meters; pending validation.",
             ),
+            DeclareLaunchArgument(
+                "frontier_blacklist_ttl_sec",
+                default_value="30.0",
+                description="Failed frontier blacklist TTL in seconds; pending validation.",
+            ),
+            DeclareLaunchArgument(
+                "frontier_blacklist_radius_m",
+                default_value="0.5",
+                description="Failed frontier blacklist radius in meters; pending validation.",
+            ),
+            DeclareLaunchArgument(
+                "nav_retry_limit",
+                default_value="1",
+                description="Retry limit for non-frontier navigation goals.",
+            ),
             Node(
                 package="algo_navigation",
                 executable="navigation_coordinator",
@@ -52,6 +70,18 @@ def generate_launch_description():
                         "target_standoff_m": ParameterValue(
                             target_standoff_m,
                             value_type=float,
+                        ),
+                        "frontier.blacklist_ttl_sec": ParameterValue(
+                            frontier_blacklist_ttl_sec,
+                            value_type=float,
+                        ),
+                        "frontier.blacklist_radius_m": ParameterValue(
+                            frontier_blacklist_radius_m,
+                            value_type=float,
+                        ),
+                        "nav.retry_limit": ParameterValue(
+                            nav_retry_limit,
+                            value_type=int,
                         ),
                     }
                 ],

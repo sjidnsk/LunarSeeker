@@ -1,0 +1,153 @@
+# P3 Nav2 仿真验证场景。
+# 本文件中的地图、障碍物、目标点、速度和超时均为轻量仿真夹具，实车前保持待验证/待测量。
+
+frames:
+  map: map
+  odom: odom
+  base_footprint: base_footprint
+  base_link: base_link
+  scan: base_link
+
+defaults:
+  note: "P3 validation fixture values, 待验证"
+
+scenarios:
+  nominal:
+    expected_failure: none
+    phase_timeout_sec: 120.0
+    phase_sequence: [departure, exploration, approach, return]
+    robot:
+      initial_pose: [0.0, 0.0, 0.0]
+      collision_radius_m: 0.42
+      max_linear_vel_mps: 0.12
+      max_angular_vel_radps: 0.80
+    scan:
+      range_min_m: 0.05
+      range_max_m: 4.0
+      beam_count: 181
+      ray_step_m: 0.04
+    map:
+      resolution: 0.05
+      width: 160
+      height: 120
+      origin: [-2.0, -3.0]
+      default: -1
+      free_rects:
+        - [-0.8, -1.0, 1.0, 1.0]
+        - [-0.8, -0.8, 4.2, 0.8]
+        - [2.2, -1.2, 4.2, 1.2]
+      occupied_rects: []
+    target:
+      target_id: p3_target_nominal
+      target_type: mock_sample
+      confidence: 0.95
+      selected: true
+      pose: [2.8, 0.2, 0.0]
+    dynamic_obstacles: []
+
+  frontier_unreachable:
+    expected_failure: frontier_unreachable
+    phase_timeout_sec: 120.0
+    phase_sequence: [departure, exploration]
+    robot:
+      initial_pose: [0.0, 0.0, 0.0]
+      collision_radius_m: 0.42
+      max_linear_vel_mps: 0.12
+      max_angular_vel_radps: 0.80
+    scan:
+      range_min_m: 0.05
+      range_max_m: 4.0
+      beam_count: 181
+      ray_step_m: 0.04
+    map:
+      resolution: 0.05
+      width: 160
+      height: 120
+      origin: [-2.0, -3.0]
+      default: -1
+      free_rects:
+        - [-0.8, -1.0, 1.0, 1.0]
+        - [2.0, -1.0, 3.5, 1.0]
+      occupied_rects:
+        - [1.0, -3.0, 1.35, 3.0]
+    target:
+      target_id: p3_target_frontier_unreachable
+      target_type: mock_sample
+      confidence: 0.95
+      selected: true
+      pose: [2.8, 0.0, 0.0]
+    dynamic_obstacles: []
+
+  local_obstacle_blocked:
+    expected_failure: local_obstacle_blocked
+    phase_timeout_sec: 120.0
+    phase_sequence: [departure, exploration, approach, return]
+    robot:
+      initial_pose: [0.0, 0.0, 0.0]
+      collision_radius_m: 0.42
+      max_linear_vel_mps: 0.12
+      max_angular_vel_radps: 0.80
+    scan:
+      range_min_m: 0.05
+      range_max_m: 4.0
+      beam_count: 181
+      ray_step_m: 0.04
+    map:
+      resolution: 0.05
+      width: 160
+      height: 120
+      origin: [-2.0, -3.0]
+      default: -1
+      free_rects:
+        - [-0.8, -1.0, 1.0, 1.0]
+        - [-0.8, -0.8, 4.2, 0.8]
+        - [2.2, -1.2, 4.2, 1.2]
+      occupied_rects: []
+    target:
+      target_id: p3_target_local_obstacle
+      target_type: mock_sample
+      confidence: 0.95
+      selected: true
+      pose: [2.8, 0.2, 0.0]
+    dynamic_obstacles:
+      - name: blocking_local_scan_obstacle
+        trigger_phase: exploration
+        start_after_sec: 3.0
+        rect: [1.7, -0.55, 2.8, 0.55]
+
+  target_approach_failed:
+    expected_failure: target_approach_failed
+    phase_timeout_sec: 120.0
+    phase_sequence: [departure, exploration, approach]
+    robot:
+      initial_pose: [0.0, 0.0, 0.0]
+      collision_radius_m: 0.42
+      max_linear_vel_mps: 0.12
+      max_angular_vel_radps: 0.80
+    scan:
+      range_min_m: 0.05
+      range_max_m: 4.0
+      beam_count: 181
+      ray_step_m: 0.04
+    map:
+      resolution: 0.05
+      width: 160
+      height: 120
+      origin: [-2.0, -3.0]
+      default: -1
+      free_rects:
+        - [-0.8, -1.0, 1.0, 1.0]
+        - [-0.8, -0.8, 4.2, 0.8]
+        - [2.2, -1.2, 4.2, 1.2]
+      occupied_rects: []
+    target:
+      target_id: p3_target_approach_failed
+      target_type: mock_sample
+      confidence: 0.95
+      selected: true
+      pose: [2.8, 0.0, 0.0]
+    dynamic_obstacles:
+      - name: blocked_target_standoff
+        trigger_phase: approach
+        start_after_sec: 0.0
+        rect: [2.15, -0.65, 3.05, 0.65]

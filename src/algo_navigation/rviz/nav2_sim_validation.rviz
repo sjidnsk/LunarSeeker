@@ -1,0 +1,162 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 0.5
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Name: Grid
+      Plane: XY
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Scale: 0.4
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        map:
+          odom:
+            base_link: {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Description Topic:
+        Value: /robot_description
+      Enabled: true
+      Name: Robot Model
+      Value: true
+    - Alpha: 0.75
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: true
+      Enabled: true
+      Name: Sim Map
+      Topic:
+        Value: /map
+      Update Topic:
+        Value: /map_updates
+      Use Timestamp: false
+      Value: true
+    - Alpha: 0.45
+      Class: rviz_default_plugins/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Global Costmap
+      Topic:
+        Value: /global_costmap/costmap
+      Update Topic:
+        Value: /global_costmap/costmap_updates
+      Use Timestamp: false
+      Value: true
+    - Alpha: 0.65
+      Class: rviz_default_plugins/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Local Costmap
+      Topic:
+        Value: /local_costmap/costmap
+      Update Topic:
+        Value: /local_costmap/costmap_updates
+      Use Timestamp: false
+      Value: true
+    - Class: rviz_default_plugins/LaserScan
+      Color: 255; 80; 80
+      Enabled: true
+      Name: LaserScan
+      Size (m): 0.04
+      Style: Points
+      Topic:
+        Value: /scan
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Color: 65; 140; 255
+      Enabled: true
+      Head Diameter: 0.12
+      Head Length: 0.18
+      Length: 0.2
+      Line Style: Lines
+      Line Width: 0.05
+      Name: Nav2 Plan
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 200; 40
+      Pose Style: Arrows
+      Radius: 0.04
+      Topic:
+        Value: /plan
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Color: 60; 220; 130
+      Enabled: true
+      Head Diameter: 0.12
+      Head Length: 0.18
+      Length: 0.2
+      Line Style: Lines
+      Line Width: 0.04
+      Name: Smoothed Plan
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 60; 220; 130
+      Pose Style: None
+      Radius: 0.04
+      Topic:
+        Value: /plan_smoothed
+      Value: true
+    - Angle Tolerance: 0.1
+      Class: rviz_default_plugins/Odometry
+      Color: 255; 220; 40
+      Enabled: true
+      Keep: 120
+      Name: Odom Trail
+      Position Tolerance: 0.05
+      Shape: Arrow
+      Topic:
+        Value: /odom
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 36; 39; 42
+    Fixed Frame: map
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 7
+      Focal Point:
+        X: 1.4
+        Y: 0
+        Z: 0
+      Name: Current View
+      Pitch: 1.2
+      Target Frame: base_link
+      Yaw: 1.57
+Window Geometry:
+  Height: 900
+  Width: 1300
+  X: 80
+  Y: 60

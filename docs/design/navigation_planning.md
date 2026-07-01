@@ -26,7 +26,7 @@
 ```text
 base_mission
 `-- algo_navigation
-    |-- mission_navigation_coordinator   待实现，正式 Nav2 action 协调入口
+    |-- navigation_coordinator           已实现，正式 Nav2 action 协调入口
     |-- search_strategy                  已实现，frontier 候选选择
     |-- target_approach_strategy         已有几何初版，待接入 TF 和 costmap 验证
     |-- navigation_visualizer            已实现，RViz 调试可视化
@@ -89,17 +89,22 @@ Nav2
 ```text
 map
 `-- odom
-    `-- base_link
-        |-- base_footprint
-        |-- lidar_link
-        |-- imu_link
-        |-- rgbd_camera_link
-        `-- piper_base_link
+    `-- base_footprint
+        `-- base_link
+            |-- front_left_wheel_link
+            |-- front_right_wheel_link
+            |-- rear_left_wheel_link
+            |-- rear_right_wheel_link
+            |-- lidar_link
+            |-- imu_link
+            |-- rgbd_camera_link
+            `-- piper_base_link
 ```
 
 约束:
 
 - Nav2 全局规划使用 `map` frame。
+- 底盘或仿真世界发布 `odom -> base_footprint`；URDF 和 `robot_state_publisher` 发布 `base_footprint -> base_link` 及传感器、轮系 TF。
 - 局部控制和障碍观测以 `base_link` / `base_footprint` 为机器人基准，具体 frame 需与 URDF 和 Nav2 参数一致。
 - mock 调试可继续使用 `odom` 作为 `map_frame_id`，接入 slam_toolbox 后切换到 `map`。
 - 目标检测如果在相机 frame 下输出，必须先经 TF 转换到导航可消费 frame，再生成接近点。
@@ -431,8 +436,8 @@ if remaining_time_sec < estimated_return_sec + placement_time_sec + recovery_mar
 
 产物:
 
-- `src/base_bringup/config/nav2_params.yaml`，待新增。
-- `src/base_bringup/launch/nav2_bringup.launch.py`，待新增。
+- `src/base_bringup/config/nav2_params.yaml`，已新增。
+- `src/base_bringup/launch/nav2_bringup.launch.py`，已新增。
 - 参数覆盖 planner、controller、costmap、behavior、bt navigator、velocity smoother。
 
 验收:
@@ -445,7 +450,7 @@ if remaining_time_sec < estimated_return_sec + placement_time_sec + recovery_mar
 
 产物:
 
-- `algo_navigation` 新增正式协调节点，名称建议 `navigation_coordinator`。
+- `algo_navigation` 新增正式协调节点 `navigation_coordinator`。
 - 输入 `/mission/state`、`/target_detections`、`/map`。
 - 输出 `/navigate_to_pose` action goal 和 `base_interfaces/NavigationStatus` 导航状态。
 
@@ -460,14 +465,82 @@ if remaining_time_sec < estimated_return_sec + placement_time_sec + recovery_mar
 
 产物:
 
-- 简化场地地图。
-- 障碍物场景。
-- rosbag 和验证记录。
+- `src/base_bringup/launch/nav2_sim_validation.launch.py`，P3 一键仿真验收入口。
+- `src/algo_navigation/rviz/nav2_sim_validation.rviz`，P3 RViz 可视化布局。
+- `src/algo_navigation/algo_navigation/navigation_sim_world.py`，轻量 2D 仿真世界，发布 `/map`、`/tf`、`/odom`、`/scan`、`/joint_states` 并订阅 `/cmd_vel`。
+- `src/algo_navigation/algo_navigation/navigation_scenario_driver.py`，任务场景驱动，发布 `/mission/state` 和 `/target_detections`，监听 `/navigation/status`。
+- `src/algo_navigation/config/navigation_sim_scenarios.yaml`，简化场地地图、静态障碍、动态障碍和目标点场景配置。
+- `docs/validation/navigation_sim_validation.md`，rosbag 和验证记录。
+
+验证链路:
+
+```text
+navigation_sim_world
+|-- /map
+|-- /tf, /tf_static
+|-- /odom
+|-- /scan
+`-- /joint_states
+
+navigation_scenario_driver
+|-- /mission/state
+`-- /target_detections
+
+navigation_coordinator
+`-- /navigate_to_pose
+
+Nav2
+`-- /cmd_vel
+
+navigation_sim_world
+`-- 根据 /cmd_vel 更新 /odom、/tf、/scan 和 /joint_states
+```
+
+P3 的 TF 链路为 `map -> odom -> base_footprint -> base_link`。`navigation_sim_world` 只发布 `odom -> base_footprint`，`base_footprint -> base_link`、传感器 link 和轮子 link 由 `robot_state_publisher` 根据 URDF 和 `/joint_states` 发布。
+
+场景:
+
+| 场景 | 用途 | 预期 |
+| --- | --- | --- |
+| `nominal` | 成功闭环 | 完成 `base_exit -> frontier -> target_approach -> base_return` |
+| `frontier_unreachable` | frontier 不可达 | frontier 失败后进入 blacklist，候选耗尽时发布 `STATUS_RETURN_RECOMMENDED` |
+| `local_obstacle_blocked` | 局部障碍 | 动态障碍出现在 `/scan` 中，触发恢复反馈或导航失败 |
+| `target_approach_failed` | 目标接近失败 | selected target 的 standoff 接近点被阻断，发布目标接近失败状态 |
+
+推荐命令:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=true
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=frontier_unreachable
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=local_obstacle_blocked
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=target_approach_failed
+```
+
+rosbag 记录:
+
+```bash
+ros2 bag record -o bags/p3_nominal \
+  /mission/state \
+  /navigation/status \
+  /map \
+  /tf \
+  /tf_static \
+  /odom \
+  /joint_states \
+  /scan \
+  /cmd_vel \
+  /target_detections \
+  /navigate_to_pose/_action/status
+```
 
 验收:
 
 - 可完成离开基地、frontier 搜索、接近点导航、返回基地。
 - 至少验证三类失败: frontier 不可达、局部障碍、目标接近失败。
+- 每个场景保留 rosbag 路径、启动命令、commit、期望结果、实际结果和待验证问题。
+- RViz 重点查看 `Robot Model`、TF、`Sim Map`、`LaserScan`、`Nav2 Plan`、global/local costmap 和 `Odom Trail`。当前 RPP 控制器不发布 DWB trajectory 调试 topic，手动添加 `Trajectory` 显示项时报错不作为 P3 失败依据。
+- P3 结果只代表轻量仿真闭环，不代表实车定位、避障、底盘响应或采样成功。
 
 ### P4: 实车低速验证
 

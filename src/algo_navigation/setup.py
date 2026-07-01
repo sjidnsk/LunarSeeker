@@ -11,6 +11,7 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
+        (f"share/{package_name}/config", glob("config/*.yaml")),
         (f"share/{package_name}/launch", glob("launch/*.launch.py")),
         (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
     ],
@@ -26,6 +27,8 @@ setup(
             "mock_frontier_map = algo_navigation.mock_frontier_map:main",
             "mock_navigation = algo_navigation.mock_navigation:main",
             "navigation_coordinator = algo_navigation.navigation_coordinator:main",
+            "navigation_scenario_driver = algo_navigation.navigation_scenario_driver:main",
+            "navigation_sim_world = algo_navigation.navigation_sim_world:main",
             "navigation_visualizer = algo_navigation.navigation_visualization:main",
         ],
     },

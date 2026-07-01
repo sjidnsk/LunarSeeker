@@ -377,7 +377,68 @@ ros2 launch algo_navigation navigation_coordinator.launch.py
 ros2 topic echo /navigation/status
 ```
 
-## 21. 不建议随手执行的命令
+## 21. Nav2 仿真验证 P3
+
+该入口用于 P3 轻量仿真验收，会串起 `robot_state_publisher`、P1 `nav2_bringup.launch.py`、P2 `navigation_coordinator.launch.py`、`navigation_sim_world` 和 `navigation_scenario_driver`。它不使用 `/goal_pose` mock 调试链路；验证对象是正式 `/navigate_to_pose` action 和 `/navigation/status`。
+
+成功闭环:
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
+```
+
+查看 RViz 可视化过程:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=true
+```
+
+RViz 中重点查看 `Sim Map`、`Robot Model`、`LaserScan`、`Nav2 Plan`、`Global Costmap`、`Local Costmap` 和 `Odom Trail`。P3 可视化入口使用正式 `/navigate_to_pose` 和 `/navigation/status` 链路，不使用 `/goal_pose` mock 调试链路。
+
+P3 仿真 TF 链路为 `map -> odom -> base_footprint -> base_link`。`navigation_sim_world` 发布 `/joint_states`，让 `robot_state_publisher` 能在 RViz 中补齐四个轮子 link。检查命令:
+
+```bash
+ros2 run tf2_ros tf2_echo map base_footprint
+ros2 run tf2_ros tf2_echo map base_link
+ros2 topic echo /joint_states --once
+```
+
+当前 Nav2 控制器使用 RPP，不发布 DWB trajectory 调试 topic。如果在 RViz 中手动添加 `Trajectory` 显示项并看到 topic 缺失或类型错误，通常只是该显示项不适用于当前 P3 配置；用 `Odom Trail` 查看实际运动轨迹。
+
+失败场景:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=frontier_unreachable
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=local_obstacle_blocked
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=target_approach_failed
+```
+
+录制 P3 rosbag:
+
+```bash
+ros2 bag record -o bags/p3_nominal \
+  /mission/state \
+  /navigation/status \
+  /map \
+  /tf \
+  /tf_static \
+  /odom \
+  /joint_states \
+  /scan \
+  /cmd_vel \
+  /target_detections \
+  /navigate_to_pose/_action/status
+```
+
+查看启动参数:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py --show-args
+```
+
+## 22. 不建议随手执行的命令
 
 不要随手执行批量删除命令，例如:
 
@@ -387,7 +448,7 @@ rm -rf build install log
 
 如果确实需要清理构建产物，先确认 `build/`、`install/`、`log/` 中没有需要保留的日志、rosbag 或实验结果，再按团队文件管理规则处理。
 
-## 22. 当前阶段最常用命令
+## 23. 当前阶段最常用命令
 
 本机开发和离线验证时，最常用的是:
 

@@ -69,8 +69,8 @@ controller_server:
     general_goal_checker:
       plugin: nav2_controller::SimpleGoalChecker
       stateful: true
-      xy_goal_tolerance: 0.35
-      yaw_goal_tolerance: 0.35
+      xy_goal_tolerance: 0.5
+      yaw_goal_tolerance: 0.5
     FollowPath:
       plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
       desired_linear_vel: 0.25
@@ -89,7 +89,7 @@ controller_server:
       cost_scaling_dist: 0.45
       cost_scaling_gain: 1.0
       inflation_cost_scaling_factor: 3.0
-      use_rotate_to_heading: true
+      use_rotate_to_heading: false
       rotate_to_heading_min_angle: 0.785
       rotate_to_heading_angular_vel: 0.4
       allow_reversing: false
@@ -103,8 +103,8 @@ local_costmap:
       robot_base_frame: base_link
       use_sim_time: false
       rolling_window: true
-      width: 3.0
-      height: 3.0
+      width: 3
+      height: 3
       resolution: 0.05
       footprint: "[[0.36, 0.34], [0.36, -0.34], [-0.36, -0.34], [-0.36, 0.34]]"
       footprint_padding: 0.03
