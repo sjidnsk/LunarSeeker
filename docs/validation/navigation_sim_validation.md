@@ -9,7 +9,7 @@
 
 ## 启动命令
 
-成功闭环:
+成功闭环，默认打开 RViz:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -17,10 +17,10 @@ source install/setup.bash
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
 ```
 
-查看 RViz 可视化过程:
+如需在录制 rosbag 或无图形环境中关闭 RViz:
 
 ```bash
-ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=true
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=false
 ```
 
 失败场景:

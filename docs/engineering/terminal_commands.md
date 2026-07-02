@@ -381,7 +381,7 @@ ros2 topic echo /navigation/status
 
 该入口用于 P3 轻量仿真验收，会串起 `robot_state_publisher`、P1 `nav2_bringup.launch.py`、P2 `navigation_coordinator.launch.py`、`navigation_sim_world` 和 `navigation_scenario_driver`。它不使用 `/goal_pose` mock 调试链路；验证对象是正式 `/navigate_to_pose` action 和 `/navigation/status`。
 
-成功闭环:
+成功闭环，默认打开 RViz:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -389,10 +389,10 @@ source install/setup.bash
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
 ```
 
-查看 RViz 可视化过程:
+如需在录制 rosbag 或无图形环境中关闭 RViz:
 
 ```bash
-ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=true
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=false
 ```
 
 RViz 中重点查看 `Sim Map`、`Robot Model`、`LaserScan`、`Nav2 Plan`、`Global Costmap`、`Local Costmap` 和 `Odom Trail`。P3 可视化入口使用正式 `/navigate_to_pose` 和 `/navigation/status` 链路，不使用 `/goal_pose` mock 调试链路。

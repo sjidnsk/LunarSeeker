@@ -55,6 +55,7 @@ def test_nav2_sim_validation_launch_connects_p1_p2_and_sim_nodes():
         "frontier_blacklist_radius_m",
         '"5.0"',
         "use_rviz",
+        'default_value="true"',
         "rviz2",
         "nav2_sim_validation.rviz",
     ):

@@ -511,7 +511,7 @@ P3 的 TF 链路为 `map -> odom -> base_footprint -> base_link`。`navigation_s
 
 ```bash
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
-ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=true
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=false
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=frontier_unreachable
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=local_obstacle_blocked
 ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=target_approach_failed

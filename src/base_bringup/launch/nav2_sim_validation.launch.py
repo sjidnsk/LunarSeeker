@@ -99,7 +99,7 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument(
                 "use_rviz",
-                default_value="false",
+                default_value="true",
                 description="Start RViz with the P3 Nav2 simulation validation layout.",
             ),
             DeclareLaunchArgument(
