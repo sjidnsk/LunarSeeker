@@ -51,7 +51,7 @@ base_mission
 
 ## 定位与建图
 
-定位建图模块基于 2D LiDAR、IMU 和底盘里程计建立或加载场地地图，为 Nav2 提供 `map -> odom -> base_link` 变换。
+定位建图模块基于 RoboSense RSHELIOS_16P 雷达、IMU 和底盘里程计建立或加载场地地图，为 Nav2 提供 `map -> odom -> base_footprint -> base_link` 变换。
 
 建议组件:
 
@@ -63,7 +63,7 @@ base_mission
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `/scan` | `sensor_msgs/LaserScan` | 2D LiDAR |
+| `/scan` | `sensor_msgs/LaserScan` | RoboSense 点云转换后的 2D scan，转换参数待验证 |
 | `/imu/data` | `sensor_msgs/Imu` | IMU |
 | `/odom` | `nav_msgs/Odometry` | 底盘里程计 |
 | `/odometry/filtered` | `nav_msgs/Odometry` | 融合里程计 |

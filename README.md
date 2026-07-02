@@ -30,7 +30,7 @@ LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采
 - Python: 3.10
 - 底盘: AgileX SCOUT MINI
 - 机械臂: AgileX / PiPER
-- 传感器: RGB-D 相机、2D LiDAR、IMU
+- 传感器: RGB-D 相机、RoboSense RSHELIOS_16P 雷达、IMU
 - 辅助硬件: 补光灯、支架、供电与线束
 - ROS 组件: Nav2、slam_toolbox、robot_localization、ros2_control
 

@@ -9,7 +9,7 @@
 | 底盘 | AgileX SCOUT MINI | 实物已到；厂商 Noetic 流程车机测试通过；ROS2 bringup 待验证 |
 | 机械臂 | PiPER | 实物已到；厂商 Noetic 流程车机测试通过；ROS2 Humble 驱动待验证 |
 | 主视觉 | RealSense D435i 级 RGB-D 相机 | 线束已接入车机并固定；型号、安装位和 ROS2 标定待验证 |
-| 导航传感器 | 2D LiDAR / 厂商雷达配置参考 | 线束已接入车机并固定；型号、安装位和 ROS2 外参待验证 |
+| 导航传感器 | RoboSense RSHELIOS_16P 雷达 | 2026-07-02 实车确认；ROS2 驱动、点云转 `/scan`、安装位和外参待验证 |
 | 姿态传感器 | IMU | 线束已接入车机并固定；型号、安装位和 ROS2 外参待验证 |
 | 辅助照明 | 补光灯 | 亮度、供电和重量待核算 |
 | 结构件 | 相机、雷达、机械臂、灯具支架 | 待设计和称重 |
@@ -20,7 +20,7 @@
 
 AgileX 语雀手册参数已归档到 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md)。手册参考配置包括 Scout Mini、PiPER、Nvidia Jetson Orin Nano、奥比中光 dabai、Livox Mid360、超核电子 CH110 和 HUAWEI 4G 路由器。
 
-这些参数当前仅作为供应商手册参考值，仍需完成离线资料归档、实物称重、装配尺寸测量、CAN bringup 和传感器标定后，才能作为项目最终配置。特别是手册记录的 Livox Mid360 与当前 2D LiDAR 导航基线不完全一致，需要单独评审 Nav2、slam_toolbox 和点云处理方案。
+这些参数当前仅作为供应商手册参考值，仍需完成离线资料归档、实物称重、装配尺寸测量、CAN bringup 和传感器标定后，才能作为项目最终配置。特别是手册记录的 Livox Mid360 与 2026-07-02 实车确认的 RoboSense RSHELIOS_16P 不一致，导航方案以实车 RoboSense 为准，点云转 `/scan`、Nav2、slam_toolbox 和点云处理方案仍需验证。
 
 ## 软件基线
 
@@ -44,14 +44,14 @@ AgileX 语雀手册参数已归档到 [../references/vendor_agilex_platform_para
 ```text
 map
 `-- odom
-    `-- base_link
-        |-- base_footprint
-        |-- lidar_link
-        |-- imu_link
-        |-- rgbd_camera_link
-        |-- fill_light_link
-        |-- piper_base_link
-        `-- sample_bin_link
+    `-- base_footprint
+        `-- base_link
+            |-- lidar_link
+            |-- imu_link
+            |-- rgbd_camera_link
+            |-- fill_light_link
+            |-- piper_base_link
+            `-- sample_bin_link
 ```
 
 ## 基础能力目标
@@ -59,7 +59,7 @@ map
 - 底盘: 发布里程计，接收速度控制，支持急停和低速精细运动。
 - 机械臂: 支持关节状态、末端控制、预设位和抓取动作。
 - RGB-D: 输出彩色图、深度图、相机内参和点云。
-- 2D LiDAR: 输出稳定 `LaserScan`，用于建图、定位和避障。
+- RoboSense RSHELIOS_16P: 输出稳定点云，并经验证后的点云转 `/scan` 链路用于建图、定位和避障。
 - IMU: 输出角速度、线加速度和姿态估计输入。
 - 补光灯: 支持固定照明或任务状态机控制。
 

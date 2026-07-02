@@ -39,7 +39,7 @@ E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。
 | `/odom` | `nav_msgs/Odometry` | A 底盘 | B、C | 里程计连续、时间戳正常、frame 与 TF 一致 |
 | `/scan` | `sensor_msgs/LaserScan` | C 定位建图 | B、C | 雷达数据稳定，坐标系为 `lidar_link` |
 | `/imu/data` | `sensor_msgs/Imu` | C 定位建图 | C | IMU 方向、单位、频率经过记录和验证 |
-| `/tf`、`/tf_static` | `tf2_msgs/TFMessage` | C、description | 全模块 | 至少包含 `map -> odom -> base_link` 和传感器/机械臂外参 |
+| `/tf`、`/tf_static` | `tf2_msgs/TFMessage` | C、description | 全模块 | 至少包含 `map -> odom -> base_footprint -> base_link` 和传感器/机械臂外参 |
 | `/camera/color/image_raw` | `sensor_msgs/Image` | D 感知 | D、E | 彩色图稳定，曝光和补光策略可复现 |
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | D 感知 | E | 深度图与彩色图对齐，可用于 3D 位姿估计 |
 | `/target_detections` | `base_interfaces/ScienceTargetArray` | E 目标位姿 | B、F、P0 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |

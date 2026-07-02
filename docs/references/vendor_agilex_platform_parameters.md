@@ -21,7 +21,7 @@
 | 激光雷达 | Livox Mid360 |
 | 惯性传感器 | 超核电子 CH110 |
 
-> 注意: 当前仓库原基线使用 RGB-D 相机、2D LiDAR、IMU 的通用描述；手册记录的奥比中光 dabai、Livox Mid360 和 CH110 需要在硬件选型评审后决定是否替换项目基线。
+> 注意: 当前仓库原基线使用 RGB-D 相机、LiDAR、IMU 的通用描述。2026-07-02 已确认实车雷达为 RoboSense RSHELIOS_16P，和本手册记录的 Livox Mid360 不一致；后续导航与 SLAM 以实车 RoboSense 为准，Livox Mid360 只保留为手册冲突来源。
 
 ## Scout Mini 底盘参数
 
@@ -95,12 +95,23 @@
 
 | 类型 | 项目 | 手册值 | 项目状态 |
 | --- | --- | --- | --- |
-| 扫描参数 | FOV | 360 x 59 deg | 与 2D LiDAR 基线不一致，待确认导航方案 |
+| 扫描参数 | FOV | 360 x 59 deg | 与 2026-07-02 实车确认的 RoboSense RSHELIOS_16P 不一致，仅作手册冲突记录 |
 | 扫描参数 | 近处盲区 | 0.1 m | 待安装位验证 |
 | 扫描参数 | 10% 反射率量程 | 40 m | 待场地验证 |
 | 扫描参数 | 点频 | 200000 点/s | 待驱动和算力评估 |
 | 其他参数 | 重量 | 265 g | 待称重 |
 | 其他参数 | 尺寸 | 65 x 65 x 60 mm | 待实测含支架包络 |
+
+### RoboSense RSHELIOS_16P
+
+| 类型 | 项目 | 当前值 | 项目状态 |
+| --- | --- | --- | --- |
+| 来源 | 实车确认 | RoboSense RSHELIOS_16P | 2026-07-02 确认 |
+| 驱动线索 | ROS 包 | `rslidar_sdk` | ROS2 Humble 构建待验证 |
+| 驱动线索 | 点云话题 | `/rslidar_points` | 实车待验证 |
+| 驱动线索 | frame | `rslidar` | 需统一到项目 TF 链路 |
+| 导航接口 | LaserScan | `/scan` | 点云转 scan 待验证 |
+| 网络参数 | MSOP / DIFOP | 6699 / 7788 | 以实车网络配置复核 |
 
 ### CH110 IMU
 
@@ -131,7 +142,7 @@
 
 ## 对项目的直接影响
 
-- 重量风险更高: 仅 Scout Mini 23 kg、PiPER 4.2 kg、Livox Mid360 0.265 kg 的手册小计已达 27.465 kg，尚未包含相机、工控机、路由器、IMU、补光、末端执行器、支架、线束和紧固件。
+- 重量风险更高: 手册中的 Livox Mid360 0.265 kg 不能代表实车 RoboSense RSHELIOS_16P；重量小计需按实物重新称重，尚未包含相机、工控机、路由器、IMU、补光、末端执行器、支架、线束和紧固件。
 - 出发包络需要重新核算: Scout Mini 手册尺寸为 612 x 580 x 245 mm，PiPER 工作半径 626.75 mm，装配后必须实测 800 x 800 x 800 mm 出发状态。
-- 传感器基线需要评审: 手册记录 Livox Mid360，不是当前文档中泛化的 2D LiDAR；Nav2、slam_toolbox 和点云处理方案需确认。
+- 传感器基线需要评审: 实车雷达为 RoboSense RSHELIOS_16P，手册记录 Livox Mid360 仅作冲突来源；Nav2、slam_toolbox、`rslidar_sdk`、点云转 `/scan` 和点云处理方案需确认。
 - CAN 接口需要分配和验证: 底盘与 PiPER 均记录 CAN 通讯，当前 `robot_profile.yaml` 预设 `can0` 和 `can1`，实机 bringup 时需核对。

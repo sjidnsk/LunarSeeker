@@ -99,10 +99,15 @@ sensors:
     depth_topic: /camera/depth/image_rect_raw
     camera_info_topic: /camera/color/camera_info
     frame_id: rgbd_camera_link
-  lidar_2d:
-    class: 2D LiDAR
+  navigation_lidar:
+    class: RoboSense RSHELIOS_16P 3D LiDAR
+    driver_package: rslidar_sdk
+    pointcloud_topic: /rslidar_points
     scan_topic: /scan
     frame_id: lidar_link
+    driver_frame_id: rslidar
+    scan_conversion: pointcloud_to_laserscan
+    status: actual_hardware_confirmed_ros2_validation_pending
   external_imu:
     class: external IMU
     imu_topic: /imu/data
@@ -117,6 +122,7 @@ sensors:
     hand_rgbd_camera_model: Orbbec dabai
     router_model: HUAWEI 4G router
     lidar_model: Livox Mid360
+    lidar_status: manual_reference_conflicts_with_actual_robosense_rshelios_16p
     lidar_specs:
       fov_deg: [360, 59]
       near_blind_zone_m: 0.1

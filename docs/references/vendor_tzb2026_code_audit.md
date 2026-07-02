@@ -260,7 +260,7 @@
 ### 8.4 雷达
 
 - 单独抽取 `rslidar_sdk` 或安装官方 ROS2 驱动，在 Humble 下验证。
-- 先确认网络配置、雷达型号 `RSHELIOS_16P`、端口 `6699/7788`、frame `rslidar`。
+- 实车雷达型号已于 2026-07-02 确认为 `RSHELIOS_16P`；仍需确认网络配置、端口 `6699/7788`、frame `rslidar` 和 ROS2 Humble 驱动状态。
 - 把点云话题统一纳入本项目传感器命名规范，再决定是否需要 pointcloud-to-scan。
 
 ### 8.5 相机

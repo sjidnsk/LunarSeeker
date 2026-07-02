@@ -32,3 +32,18 @@ def test_required_topics_are_declared():
         "can1",
     ):
         assert topic in text
+
+
+def test_navigation_lidar_profile_matches_confirmed_hardware():
+    text = PROFILE.read_text(encoding="utf-8")
+
+    for expected in (
+        "navigation_lidar:",
+        "RoboSense RSHELIOS_16P",
+        "driver_package: rslidar_sdk",
+        "pointcloud_topic: /rslidar_points",
+        "scan_topic: /scan",
+        "scan_conversion: pointcloud_to_laserscan",
+        "manual_reference_conflicts_with_actual_robosense_rshelios_16p",
+    ):
+        assert expected in text

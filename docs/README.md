@@ -17,6 +17,7 @@
 
 - [总体架构](design/architecture.md)
 - [系统基线](design/system_baseline.md)
+- [定位建图与 SLAM 专项设计方案](design/localization_slam.md)
 - [探索导航避障设计方案](design/navigation_planning.md)
 
 ## Engineering

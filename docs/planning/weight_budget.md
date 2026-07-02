@@ -17,7 +17,7 @@ SCOUT MINI 与 PiPER 的公开重量口径叠加后已经接近或可能超过 3
 - PiPER 机械臂本体。
 - 末端执行器或夹爪。
 - RGB-D 相机。
-- 2D LiDAR。
+- RoboSense RSHELIOS_16P 雷达。
 - IMU。
 - 补光灯。
 - 主控计算单元。
@@ -34,7 +34,7 @@ SCOUT MINI 与 PiPER 的公开重量口径叠加后已经接近或可能超过 3
 | PiPER 机械臂 | 4.2 kg（语雀手册值） | 待称重 | 待核算 | 含控制盒或必要附件时需单列 |
 | 末端执行器 | 待填 | 待称重 | 待选型 | 抓取科学目标能力优先验证 |
 | RGB-D 相机 | 待填 | 待称重 | 待选型 | 含安装座和线缆 |
-| LiDAR（手册为 Livox Mid360） | 0.265 kg（语雀手册值） | 待称重 | 待确认 | 当前系统基线仍按 2D LiDAR 规划，需确认是否改用 Mid360 |
+| RoboSense RSHELIOS_16P 雷达 | 待填 | 待称重 | 实车型号已确认，重量待测量 | 语雀手册中的 Livox Mid360 0.265 kg 不适用于实车重量结论 |
 | IMU | 待填 | 待称重 | 待选型 | 含固定件 |
 | 补光灯 | 待填 | 待称重 | 待选型 | 含电源、支架和开关 |
 | 主控计算单元 | 待填 | 待称重 | 待选型 | 含散热和外壳 |
@@ -43,7 +43,7 @@ SCOUT MINI 与 PiPER 的公开重量口径叠加后已经接近或可能超过 3
 | 其他比赛附件 | 待填 | 待称重 | 待确认 | 按官方要求补充 |
 | 合计 | 待填 | 待称重 | 未确认 | 不得超过 30 kg |
 
-已归档手册值的部分重量小计为 27.465 kg（SCOUT MINI 23 kg + PiPER 4.2 kg + Livox Mid360 0.265 kg）。该小计尚未包含相机、工控机、路由器、IMU、补光灯、末端执行器、支架、线束和紧固件，因此总重风险仍需按一级风险管理。
+已归档手册值中的 Livox Mid360 与实车 RoboSense RSHELIOS_16P 不一致，因此不能再把 Livox 0.265 kg 纳入实车重量小计。当前已归档可参考小计至少为 27.2 kg（SCOUT MINI 23 kg + PiPER 4.2 kg），尚未包含实车雷达、相机、工控机、路由器、IMU、补光灯、末端执行器、支架、线束和紧固件，因此总重风险仍需按一级风险管理。
 
 ## 控制策略
 
@@ -55,7 +55,7 @@ SCOUT MINI 与 PiPER 的公开重量口径叠加后已经接近或可能超过 3
 
 ## 待办
 
-- 对照 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md) 完成 SCOUT MINI、PiPER、Livox Mid360 等手册参数的离线归档。
+- 对照 [../references/vendor_agilex_platform_parameters.md](../references/vendor_agilex_platform_parameters.md) 完成 SCOUT MINI、PiPER、RoboSense RSHELIOS_16P 和手册冲突项的离线归档。
 - 建立实物称重记录表，记录时间、称重工具、照片和操作者。
 - 完成传感器、补光灯、主控、支架和线束选型后重新核算。
 - 完成 800 x 800 x 800 mm 出发包络测量，与重量风险一起评审。

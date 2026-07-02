@@ -235,7 +235,7 @@ return_budget_sec =
 | 全局规划 | NavFn 或 Smac 2D | NavFn 配置简单；Smac 2D 对代价更敏感 | 待仿真对比 |
 | 局部控制 | Regulated Pure Pursuit | 适合低速服务机器人，能按曲率和障碍距离降速 | DWB |
 | 行为树 | Nav2 默认 `navigate_to_pose_w_replanning_and_recovery.xml` | 自带重规划和恢复框架 | 后续裁剪 |
-| 代价地图 | `static_layer`、`obstacle_layer`、`inflation_layer` | 标准 2D LiDAR 避障链路 | voxel layer，若使用点云 |
+| 代价地图 | `static_layer`、`obstacle_layer`、`inflation_layer` | RoboSense 点云转 `/scan` 后复用 LaserScan 避障链路 | voxel layer，若后续直接使用点云 |
 | 定位建图 | `slam_toolbox` + `robot_localization` | 符合项目基线 | AMCL，若使用固定地图 |
 | 速度平滑 | `nav2_velocity_smoother` | 限制加速度和突变 | 底盘驱动限速 |
 
@@ -598,7 +598,7 @@ ros2 bag record -o bags/p3_nominal \
 
 | 风险 | 影响 | 应对 | 状态 |
 | --- | --- | --- | --- |
-| LiDAR 型号与 2D 基线不一致 | Nav2 obstacle layer 输入可能变化 | 若实际为 Livox Mid360，先转换为 LaserScan 或评审点云 costmap | 待确认 |
+| RoboSense 点云到 `/scan` 转换未验证 | Nav2 obstacle layer 输入可能变化 | 先验证 `rslidar_sdk`、`/rslidar_points`、pointcloud-to-scan 和 scan frame，再评审是否需要点云 costmap | 待验证 |
 | 外参未标定 | costmap 障碍位置错误 | 先完成 TF/URDF 实测 | 待测量 |
 | footprint 未复核 | 贴障或误判不可通行 | 以最终装配外廓重算 footprint | 待测量 |
 | 地图漂移 | frontier 选择和返回失败 | slam_toolbox/robot_localization 联调，必要时使用固定地图定位 | 待验证 |
@@ -610,6 +610,7 @@ ros2 bag record -o bags/p3_nominal \
 
 - 本仓库 [总体架构](architecture.md)。
 - 本仓库 [系统基线](system_baseline.md)。
+- 本仓库 [定位建图与 SLAM 专项设计方案](localization_slam.md)。
 - 本仓库 [研发路线](../planning/roadmap.md)。
 - 本仓库 [导航搜索可视化](../engineering/navigation_visualization.md)。
 - Nav2 官方 Planner Server 文档: https://docs.nav2.org/configuration/packages/configuring-planner-server.html

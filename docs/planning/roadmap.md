@@ -47,7 +47,7 @@
 
 - 底盘可发布里程计并响应低速 `cmd_vel`。
 - PiPER 可发布关节状态并执行安全预设动作。
-- RGB-D、2D LiDAR、IMU 数据稳定发布。
+- RGB-D、RoboSense RSHELIOS_16P 雷达、IMU 数据稳定发布。
 - 完成基础 rosbag 和 bringup 记录。
 
 责任人:

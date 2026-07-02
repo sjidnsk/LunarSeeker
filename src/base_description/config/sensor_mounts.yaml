@@ -4,7 +4,7 @@ sensor_mounts:
     parent_frame: base_link
     xyz_m: [0.32, 0.0, 0.46]
     rpy_rad: [0.0, 0.0, 0.0]
-  lidar_2d:
+  navigation_lidar:
     frame_id: lidar_link
     parent_frame: base_link
     xyz_m: [0.22, 0.0, 0.42]
@@ -19,4 +19,3 @@ sensor_mounts:
     parent_frame: base_link
     xyz_m: [0.36, 0.0, 0.38]
     rpy_rad: [0.0, 0.0, 0.0]
-
