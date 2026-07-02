@@ -61,8 +61,8 @@ Nav2
 | `/mission/state` | `base_interfaces/MissionState` | `base_mission` | 驱动导航模式切换 | 已定义 |
 | `/map` | `nav_msgs/OccupancyGrid` | `slam_toolbox` 或 mock map | frontier、global costmap | mock 已验证，实车待验证 |
 | `/tf`, `/tf_static` | `tf2_msgs/TFMessage` | localization / description | 坐标转换 | 外参待验证 |
-| `/odom` 或 `/odometry/filtered` | `nav_msgs/Odometry` | 底盘 / `robot_localization` | 控制器速度估计 | 实车待验证 |
-| `/scan` | `sensor_msgs/LaserScan` | LiDAR 驱动 | obstacle layer 和避障 | 实车待验证 |
+| `/odom` 或 `/odometry/filtered` | `nav_msgs/Odometry` | 底盘 / `robot_localization` | 控制器速度估计 | Noetic P1 已验证 `/odom` 约 50 Hz；ROS2 Nav2 接入待验证 |
+| `/scan` | `sensor_msgs/LaserScan` | LiDAR 驱动 | obstacle layer 和避障 | Noetic P1 已验证约 9.98 Hz，`frame_id=rslidar`；ROS2 Nav2 接入待验证 |
 | `/target_detections` | `base_interfaces/ScienceTargetArray` | 感知定位 | 目标接近点生成 | mock/实车待验证 |
 
 ### 输出
@@ -598,7 +598,7 @@ ros2 bag record -o bags/p3_nominal \
 
 | 风险 | 影响 | 应对 | 状态 |
 | --- | --- | --- | --- |
-| RoboSense 点云到 `/scan` 转换未验证 | Nav2 obstacle layer 输入可能变化 | 先验证 `rslidar_sdk`、`/rslidar_points`、pointcloud-to-scan 和 scan frame，再评审是否需要点云 costmap | 待验证 |
+| ROS2 RoboSense 点云到 `/scan` 接入未验证 | Nav2 obstacle layer 输入可能变化 | Noetic P1 已验证 `/rslidar_points` 和 `/scan` 稳定发布；下一步验证 ROS2 `pointcloud_to_laserscan`、scan frame 和 Nav2 costmap 消费 | Noetic P1 通过，ROS2 待验证 |
 | 外参未标定 | costmap 障碍位置错误 | 先完成 TF/URDF 实测 | 待测量 |
 | footprint 未复核 | 贴障或误判不可通行 | 以最终装配外廓重算 footprint | 待测量 |
 | 地图漂移 | frontier 选择和返回失败 | slam_toolbox/robot_localization 联调，必要时使用固定地图定位 | 待验证 |

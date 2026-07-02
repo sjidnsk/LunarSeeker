@@ -6,6 +6,7 @@
 
 - `algo_localization` 目前仅为空壳包，尚未提供可运行的定位建图节点、参数文件或 launch。
 - `base_bringup` 的 Nav2 P1/P3 只验证了外部 `/map`、`/tf`、`/odom`、`/scan` 输入契约，不代表真实 SLAM、外参或传感器数据已通过。
+- 2026-07-02 车机 ROS Noetic P1 只读检查已通过: `can0`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw`、TF 链和 rosbag 记录均正常；该结果只证明厂商 Noetic 链路可用，不代表 ROS2 Humble 主线已完成接入。
 - 真实硬件验证必须部署到车机或 ROS2 主控后执行；本机只能完成文档、静态检查、mock/sim 和可离线验证项。
 - 本文所有外参、协方差、频率、速度、地图质量和定位漂移指标均为初始设计或验收门槛，未实测前保持“待测量”或“待验证”状态。
 
@@ -61,11 +62,11 @@ algo_navigation / Nav2
 
 | 名称 | 类型 | 生产者 | 用途 | 状态 |
 | --- | --- | --- | --- | --- |
-| `/odom` | `nav_msgs/Odometry` | SCOUT MINI 底盘驱动 | wheel odom 输入、速度连续性检查 | 实车待验证 |
-| `/scan` | `sensor_msgs/LaserScan` | RoboSense RSHELIOS_16P 点云转 LaserScan | `slam_toolbox` 建图定位、Nav2 obstacle layer | 点云转 scan 待验证 |
-| `/imu/data` | `sensor_msgs/Imu` | IMU 驱动 | yaw rate、姿态辅助、滤波输入 | 实车待验证 |
+| `/odom` | `nav_msgs/Odometry` | SCOUT MINI 底盘驱动 | wheel odom 输入、速度连续性检查 | Noetic P1 已验证约 50 Hz；ROS2 接入待验证 |
+| `/scan` | `sensor_msgs/LaserScan` | RoboSense RSHELIOS_16P 点云转 LaserScan | `slam_toolbox` 建图定位、Nav2 obstacle layer | Noetic P1 已验证约 9.98 Hz，`frame_id=rslidar`；ROS2 接入待验证 |
+| `/imu/data` | `sensor_msgs/Imu` | IMU 驱动 | yaw rate、姿态辅助、滤波输入 | Noetic P1 实测为 `/imu/data_raw` 约 200 Hz；ROS2 需映射到 `/imu/data` |
 | `/tf_static` | `tf2_msgs/TFMessage` | `robot_state_publisher` / 静态 TF | 传感器外参和机器人结构 | 外参待测量 |
-| `/tf` | `tf2_msgs/TFMessage` | `slam_toolbox`、`robot_localization`、底盘或仿真 | 动态坐标链路 | 发布权待确认 |
+| `/tf` | `tf2_msgs/TFMessage` | `slam_toolbox`、`robot_localization`、底盘或仿真 | 动态坐标链路 | Noetic P1 链路连通；ROS2 发布权待确认 |
 
 ### 输出
 
@@ -121,8 +122,8 @@ TF 发布权:
 - 同一个 child frame 只有一个动态 TF 发布者。
 - `/odom.header.frame_id` 为 `odom`。
 - `/odom.child_frame_id` 为 `base_footprint` 或 `base_link`，最终需统一到 `base_footprint`。
-- `/scan.header.frame_id` 与 TF 中的 `lidar_link` 一致。
-- `/imu/data.header.frame_id` 与 TF 中的 `imu_link` 一致。
+- `/scan.header.frame_id` 必须能通过 TF 连到 `base_link` 或 `base_footprint`；Noetic P1 实测为 `rslidar`，ROS2 主线需决定保留 `rslidar` 或统一到 `lidar_link`。
+- `/imu/data.header.frame_id` 与 TF 中的 `imu_link` 一致；Noetic P1 实测话题为 `/imu/data_raw`，ROS2 主线需映射到 `/imu/data`。
 - `base_footprint` 不是 joint，不应通过 `/joint_states` 发布。
 
 ## 数据质量准入
@@ -145,10 +146,10 @@ ros2 topic echo /imu/data --once
 
 | 项目 | 门槛 | 状态 |
 | --- | --- | --- |
-| `/odom` | 连续发布，无时间戳倒退，速度符号与车体运动一致 | 待验证 |
-| `/scan` | 连续发布，非全 NaN/Inf，角度范围与雷达安装一致 | 待验证 |
-| `/imu/data` | 连续发布，静止时角速度接近 0，重力方向合理 | 待验证 |
-| frame_id | 与 TF 树一致，不出现空 frame | 待验证 |
+| `/odom` | 连续发布，无时间戳倒退，速度符号与车体运动一致 | Noetic P1 已验证约 50 Hz；运动方向仍待 P2 低速验证 |
+| `/scan` | 连续发布，非全 NaN/Inf，角度范围与雷达安装一致 | Noetic P1 已验证约 9.98 Hz，`ranges` 有效；角度范围待建图验证 |
+| `/imu/data` | 连续发布，静止时角速度接近 0，重力方向合理 | Noetic P1 已验证 `/imu/data_raw` 约 200 Hz；ROS2 话题映射待实现 |
+| frame_id | 与 TF 树一致，不出现空 frame | Noetic P1 已验证 `odom`、`base_footprint`、`rslidar`、`imu_link` 连通 |
 | 协方差 | 未实测前不得写成可信精度；缺省值需记录来源 | 待测量 |
 
 ### TF 检查
@@ -175,8 +176,8 @@ ros2 run tf2_ros tf2_echo base_link imu_link
 检查内容:
 
 - 雷达安装高度、朝向、前向零角度和遮挡范围，全部待测量。
-- 实车雷达为 RoboSense RSHELIOS_16P，必须先验证 `rslidar_sdk` 的 `/rslidar_points` 输出和点云到 `/scan` 的转换策略。
-- 转换后的 `/scan` 必须说明截取高度、角分辨率、range_min、range_max 和滤波规则，全部待验证。
+- 实车雷达为 RoboSense RSHELIOS_16P；车机 Noetic P1 已验证 `rslidar_sdk` 的 `/rslidar_points` 输出和点云到 `/scan` 的转换链路。
+- 转换后的 `/scan` 在 Noetic P1 中已确认 `frame_id=rslidar` 且 `ranges` 有效；截取高度、角分辨率、range_min、range_max 和滤波规则仍需在 ROS2 主线和建图阶段复核。
 
 不得把点云输入直接写入 Nav2 或 `slam_toolbox` 主线，除非同步补充依赖、参数、launch、测试和文档。
 
@@ -316,6 +317,26 @@ Nav2 接入要求:
 - 传感器型号、topic、frame 和 TF 发布权检查记录。
 - RoboSense RSHELIOS_16P 的 `/rslidar_points`、`rslidar` frame、点云转 `/scan` 和 TF 发布权检查记录。
 
+参考厂商基础代码后，P0 暂定必须确认以下信息。表中“厂商线索”只能作为实车排查起点，不等同于 ROS2 Humble 主线已验证参数。
+
+| 类别 | 厂商基础代码线索 | P0 需要确认的信息 | 确认结果记录 |
+| --- | --- | --- | --- |
+| 雷达型号 | `rslidar_sdk/config/config.yaml` 中 `lidar_type: RSHELIOS_16P` | 实车铭牌、网页配置或驱动日志是否一致 | 2026-07-02 实车已确认为 RSHELIOS_16P |
+| 雷达数据源 | `msg_source: 1`，表示在线雷达包输入 | ROS2 驱动是否直接从实车收包，而不是 rosbag/pcap 回放 | Noetic P1 已通过在线点云发布间接验证；ROS2 待验证 |
+| 点云输出 | `send_point_cloud_ros: true`，点云 topic 为 `/rslidar_points` | ROS2 下 `/rslidar_points` 是否稳定发布，消息类型、频率和 frame 是否正确 | Noetic P1 已验证约 9.973 Hz，`frame_id=rslidar`；ROS2 待验证 |
+| packet 话题 | `/rslidar_packets`，默认 `send_packet_ros: false` | 是否需要记录 packet bag 作为雷达排障证据 | 待验证 |
+| 网络端口 | MSOP `6699`，DIFOP `7788`，`wait_for_difop: true` | 实车雷达 IP、主机 IP、端口、防火墙和网卡是否匹配 | Noetic P1 已通过点云发布间接验证；网络参数仍需归档 |
+| 雷达 frame | `ros_frame_id: rslidar` | 项目 TF 是否保留 `rslidar`，或静态转换到 `lidar_link` 后统一消费 `lidar_link` | Noetic P1 已验证 `rslidar` 并连通 TF；ROS2 命名待决策 |
+| 点云距离范围 | `min_distance: 0.2`，`max_distance: 200` | 近场盲区是否影响 5 cm 目标物块和低矮障碍检测 | 待验证 |
+| 点云转 `/scan` | `point_to_scan.launch` 从 `/rslidar_points` 转换 | ROS2 版 `pointcloud_to_laserscan` 是否可用，输出 topic 是否为 `/scan` | Noetic P1 已验证约 9.98 Hz，`frame_id=rslidar`，`ranges` 有效；ROS2 待验证 |
+| scan 高度切片 | 厂商 ROS1 launch 使用 `min_height: -0.2`，`max_height: 1.0` | 以 `base_footprint` 或 `lidar_link` 为准重新定义 SLAM scan 和低矮障碍 scan 的高度范围 | 待测量 |
+| scan 角度范围 | 厂商 ROS1 launch 使用 `angle_min: -1.78`，`angle_max: 1.78`，`angle_increment: 0.007` | 是否需要 360 度建图 scan，还是保留前向局部避障 scan | 待验证 |
+| scan 距离范围 | 厂商 ROS1 launch 使用 `range_min: 0.2`，`range_max: 100` | 结合场地尺寸、近场障碍和 Nav2 costmap 调整有效范围 | 待验证 |
+| 雷达到车体 TF | `open_rslidar.launch` 静态 TF: `base_link -> rslidar` 为 `[0.22, 0.0, 0.15]` | 实车实际安装高度、俯仰角、横向偏置和遮挡；当前项目初值不得直接当实测外参 | 待测量 |
+| 底盘 odom | `scout_mini_base.launch` 发布 `/odom`，`odom_frame=odom`，`base_frame=base_footprint`，`pub_tf=false` | ROS2 底盘驱动是否发布 `/odom`，是否关闭 TF，`child_frame_id` 是否统一到 `base_footprint` | Noetic P1 已验证 `/odom` 约 50 Hz，唯一 publisher，`child_frame_id=base_footprint`；ROS2 待验证 |
+| 激光里程计 | `open_rslidar.launch` 启动 `rf2o_laser_odometry` 并发布 TF | 因 GPL v3 和 ROS1 API，不进入主线；若要替代 EKF 必须先做许可证和方案评审 | 不采用 |
+| 点云/scan 坐标链 | 厂商链路为 `/rslidar_points -> /scan -> rf2o/gmapping` | 项目链路应拆成 SLAM scan、local costmap 近场障碍和目标识别协同，避免单层 scan 负责全部感知 | Noetic P1 输入链路已通；建图、避障和目标协同仍待设计验证 |
+
 命令:
 
 ```bash
@@ -336,7 +357,7 @@ ros2 pkg list | rg "slam_toolbox|robot_localization|nav2_map_server"
 - 车机 rosbag。
 - topic 频率、frame_id、时间戳和 TF 树截图或文本记录。
 
-命令:
+ROS2 主线部署后的目标命令:
 
 ```bash
 ros2 topic hz /odom
@@ -347,6 +368,43 @@ ros2 topic echo /scan --once
 ros2 topic echo /imu/data --once
 ros2 run tf2_tools view_frames
 ```
+
+车机 ROS Noetic P1 已执行检查:
+
+```bash
+rostopic hz /odom
+rostopic hz /rslidar_points
+rostopic hz /scan
+rostopic hz /imu/data_raw
+rostopic echo -n 1 /odom
+rostopic echo -n 1 /rslidar_points/header
+rostopic echo -n 1 /scan/header
+rostopic echo -n 1 /imu/data_raw
+rosrun tf tf_echo odom base_footprint
+rosrun tf tf_echo base_footprint base_link
+rosrun tf tf_echo base_link rslidar
+rosrun tf tf_echo base_link imu_link
+rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
+  /tf \
+  /odom \
+  /rslidar_points \
+  /scan \
+  /imu/data_raw
+```
+
+2026-07-02 车机 Noetic P1 结果:
+
+| 检查项 | 结果 | 状态 |
+| --- | --- | --- |
+| `can0` | 有持续数据流 | 通过 |
+| `/odom` | 唯一 publisher，约 50 Hz，`header.frame_id=odom`，`child_frame_id=base_footprint` | 通过 |
+| `/rslidar_points` | 有 publisher，约 9.973 Hz，`frame_id=rslidar`，时间戳非 0 | 通过 |
+| `/scan` | 有 publisher，约 9.98 Hz，`frame_id=rslidar`，`ranges` 非全 `inf`、非全 `nan`、非全 0 | 通过 |
+| `/imu/data_raw` | 有 publisher，约 200 Hz，`header.frame_id=imu_link`，静止角速度无明显乱跳 | 通过 |
+| TF | `odom -> base_footprint -> base_link -> rslidar/imu_link` 连通 | 通过 |
+| rosbag | 包含 `/tf`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw` | 通过 |
+
+结论: Noetic P1 通过。可进入 P2 EKF 参数开发；P3 建图输入条件已具备，但正式建图仍建议等待 P2 里程计链路确认。
 
 验收:
 
@@ -560,7 +618,7 @@ ros2 topic hz /map
 
 | 风险 | 影响 | 应对 | 状态 |
 | --- | --- | --- | --- |
-| RoboSense 点云转 `/scan` 未验证 | `slam_toolbox` 和 Nav2 obstacle layer 输入不成立 | 先验证 `rslidar_sdk`、`/rslidar_points`、pointcloud-to-scan、scan frame；必要时评审点云 costmap | 待验证 |
+| ROS2 RoboSense 点云转 `/scan` 接入未验证 | `slam_toolbox` 和 Nav2 obstacle layer 输入可能变化 | Noetic P1 已验证 `/rslidar_points` 和 `/scan` 稳定发布；下一步验证 ROS2 `pointcloud_to_laserscan`、scan frame 和 costmap 消费 | Noetic P1 通过，ROS2 待验证 |
 | 外参未测量 | 地图重影、costmap 障碍偏移 | 先完成雷达、IMU、相机、机械臂外参测量 | 待测量 |
 | 底盘和 EKF 重复发 TF | Nav2 和 RViz 坐标跳变 | 明确 `odom -> base_footprint` 唯一发布者 | 待验证 |
 | IMU 坐标轴不一致 | EKF yaw 错误，地图扭曲 | 静止和原地转向 bag 校验后再接入 | 待验证 |

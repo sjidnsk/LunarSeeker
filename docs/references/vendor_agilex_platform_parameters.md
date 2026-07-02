@@ -108,18 +108,18 @@
 | --- | --- | --- | --- |
 | 来源 | 实车确认 | RoboSense RSHELIOS_16P | 2026-07-02 确认 |
 | 驱动线索 | ROS 包 | `rslidar_sdk` | ROS2 Humble 构建待验证 |
-| 驱动线索 | 点云话题 | `/rslidar_points` | 实车待验证 |
-| 驱动线索 | frame | `rslidar` | 需统一到项目 TF 链路 |
-| 导航接口 | LaserScan | `/scan` | 点云转 scan 待验证 |
-| 网络参数 | MSOP / DIFOP | 6699 / 7788 | 以实车网络配置复核 |
+| 驱动线索 | 点云话题 | `/rslidar_points` | Noetic P1 已验证约 9.973 Hz；ROS2 接入待验证 |
+| 驱动线索 | frame | `rslidar` | Noetic P1 已连通 TF；ROS2 是否统一到 `lidar_link` 待决策 |
+| 导航接口 | LaserScan | `/scan` | Noetic P1 点云转 scan 已验证约 9.98 Hz，`frame_id=rslidar` |
+| 网络参数 | MSOP / DIFOP | 6699 / 7788 | Noetic P1 已通过点云发布间接验证，网络配置仍需归档 |
 
 ### CH110 IMU
 
 | 类型 | 项目 | 手册值 | 项目状态 |
 | --- | --- | --- | --- |
-| 陀螺仪 | 测量范围 | +/- 500 deg/s | 待驱动验证 |
+| 陀螺仪 | 测量范围 | +/- 500 deg/s | 待驱动量纲和坐标轴验证 |
 | 陀螺仪 | 分辨率 | 0.01 deg/s | 待数据质量验证 |
-| 陀螺仪 | 内部采样频率 | 1 kHz | 待实际发布频率确认 |
+| 陀螺仪 | 内部采样频率 | 1 kHz | Noetic P1 实测 `/imu/data_raw` 约 200 Hz |
 | 加速度计 | 测量范围 | +/- 8 G | 待驱动验证 |
 | 加速度计 | 分辨率 | 1 uG | 待数据质量验证 |
 | 加速度计 | 内部采样频率 | 1 kHz | 待实际发布频率确认 |
