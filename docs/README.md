@@ -32,6 +32,7 @@
 
 面向构建、mock/sim、车机、硬件和端到端流程的验证记录。
 
+- [定位与 SLAM 验证记录](validation/localization_slam_validation.md)
 - [Mock/sim 验证记录](validation/mock_bringup_validation.md)
 - [车机 Noetic 基线验证记录](validation/vehicle_noetic_baseline_validation.md)
 

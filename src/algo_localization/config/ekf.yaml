@@ -1,0 +1,75 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.1
+    print_diagnostics: true
+    debug: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+
+    # P2 默认使用影子模式，避免和底盘驱动重复发布 odom -> base_footprint。
+    # 影子模式通过后，可在 launch 中设置 publish_tf:=true 让 EKF 接管 TF。
+    publish_tf: false
+
+    odom0: /odom
+    odom0_queue_size: 10
+    odom0_nodelay: false
+    odom0_differential: false
+    odom0_relative: false
+    odom0_pose_rejection_threshold: 5.0
+    odom0_twist_rejection_threshold: 1.0
+    # 顺序为 x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az。
+    # 初值只沿用 wheel odom 的前向速度和 yaw rate。
+    # Noetic P2 影子模式发现 /odom 的 x、y 与 yaw pose 协方差为 0，
+    # 源头修正前不消费任何 odom pose 维度。
+    odom0_config:
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - true
+      - false
+      - false
+      - false
+      - false
+      - true
+      - false
+      - false
+      - false
+
+    imu0: /imu/data
+    imu0_queue_size: 50
+    imu0_nodelay: false
+    imu0_differential: false
+    imu0_relative: false
+    imu0_pose_rejection_threshold: 0.8
+    imu0_twist_rejection_threshold: 0.8
+    imu0_linear_acceleration_rejection_threshold: 0.8
+    imu0_remove_gravitational_acceleration: false
+    # P2 第一轮只接入 IMU yaw rate；姿态和线加速度方向未验证前不进入 EKF。
+    imu0_config:
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - true
+      - false
+      - false
+      - false
+
+    use_control: false

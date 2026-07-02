@@ -4,9 +4,10 @@
 
 当前状态:
 
-- `algo_localization` 目前仅为空壳包，尚未提供可运行的定位建图节点、参数文件或 launch。
+- `algo_localization` 已提供 P2 `robot_localization` EKF 参数文件和 ROS2 launch 入口；P3 `slam_toolbox` 参数、地图保存和固定地图定位入口仍待实现。
 - `base_bringup` 的 Nav2 P1/P3 只验证了外部 `/map`、`/tf`、`/odom`、`/scan` 输入契约，不代表真实 SLAM、外参或传感器数据已通过。
 - 2026-07-02 车机 ROS Noetic P1 只读检查已通过: `can0`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw`、TF 链和 rosbag 记录均正常；该结果只证明厂商 Noetic 链路可用，不代表 ROS2 Humble 主线已完成接入。
+- 2026-07-02 车机 ROS Noetic P2 EKF 影子模式静止检查已通过，`/odometry/filtered` 约 30 Hz 且 diagnostics 为 `level=0`；motion bag 已录制并完成 `rosbag info` 归档，但尚未完成回放分析，暂不允许 EKF 接管 `odom -> base_footprint`。
 - 真实硬件验证必须部署到车机或 ROS2 主控后执行；本机只能完成文档、静态检查、mock/sim 和可离线验证项。
 - 本文所有外参、协方差、频率、速度、地图质量和定位漂移指标均为初始设计或验收门槛，未实测前保持“待测量”或“待验证”状态。
 
@@ -74,7 +75,7 @@ algo_navigation / Nav2
 | --- | --- | --- | --- | --- |
 | `/map` | `nav_msgs/OccupancyGrid` | Nav2、frontier 搜索、RViz | 全局规划和探索目标选择 | 实车待验证 |
 | `map -> odom` | TF | Nav2、感知、任务记录 | 全局定位修正 | 由 `slam_toolbox` 发布，待实现 |
-| `/odometry/filtered` | `nav_msgs/Odometry` | Nav2、记录系统 | 融合里程计 | 待实现 |
+| `/odometry/filtered` | `nav_msgs/Odometry` | Nav2、记录系统 | 融合里程计 | ROS2 P2 入口已实现；Noetic P2 静止影子模式通过，motion bag 待回放分析 |
 | `odom -> base_footprint` | TF | 全系统 | 局部连续位姿 | 推荐由 `robot_localization` 发布，待验证 |
 | 定位质量检查结果 | 文档记录或后续 topic | P0、B、C | 判断是否允许导航 | 待实现 |
 
@@ -188,9 +189,23 @@ ros2 run tf2_ros tf2_echo base_link imu_link
 计划入口:
 
 ```text
-src/algo_localization/config/ekf.yaml          待实现
-src/algo_localization/launch/localization.launch.py  待实现
+src/algo_localization/config/ekf.yaml
+src/algo_localization/launch/localization.launch.py
 ```
+
+配置放置原则:
+
+- ROS2 主线只维护 `algo_localization` 中的 EKF 参数和 launch，上述两个文件是 P2 权威入口。
+- 车机 ROS Noetic 验证不得把 EKF 配置散放在 `~/agilex_ws/p2_ekf` 这类工作区外目录。
+- 如需在 Noetic 车机临时跑 `robot_localization`，配置应放进 ROS 包内，推荐使用集成入口包:
+
+```text
+~/agilex_ws/src/robot_ros/config/ekf_noetic.yaml
+~/agilex_ws/src/robot_ros/launch/ekf_noetic.launch
+```
+
+- 不建议把 P2 验证配置放入 `scout_base`、`rslidar_sdk`、`imu_launch` 等驱动包，避免把验证逻辑混进厂商底层驱动。
+- Noetic 验证配置只用于 P2 数据质量和参数初调；通过后应把结论迁移回 ROS2 `src/algo_localization/config/ekf.yaml`。
 
 推荐配置意图:
 
@@ -202,17 +217,35 @@ src/algo_localization/launch/localization.launch.py  待实现
 | `odom_frame` | `odom` | 连续局部 frame | 待验证 |
 | `base_link_frame` | `base_footprint` | 与 Nav2/URDF 链路统一 | 待验证 |
 | `world_frame` | `odom` | 单 EKF 不发布 map 修正 | 待验证 |
-| `odom0` | `/odom` | 底盘 wheel odom | 待验证 |
+| `odom0` | `/odom` | 底盘 wheel odom；P2 初值只消费 odom twist | Noetic P2 发现 x、y 和 yaw pose 协方差为 0，待源头修正 |
 | `imu0` | `/imu/data` | yaw rate 和姿态辅助 | 待验证 |
-| `publish_tf` | true | 作为推荐 `odom -> base_footprint` 权威 | 待验证 |
+| `publish_tf` | false | P2 默认影子模式，不抢占底盘 TF；通过后显式改为 true 接管 `odom -> base_footprint` | 待验证 |
 
 融合原则:
 
-- `/odom` 可用于 x、y、yaw、vx、vyaw；具体启用字段需根据 SCOUT MINI 驱动输出实测确认。
-- `/imu/data` 第一阶段只建议使用 yaw rate 和姿态相关字段；磁力计或绝对航向未验证前不得作为稳定真值。
+- `/odom` 第一阶段只用于 vx 和 vyaw；Noetic P2 影子模式发现 `/odom` 的 x、y 与 yaw pose 协方差为 0，源头修正前不消费任何 odom pose 维度。
+- `/imu/data` 第一阶段只接入 yaw rate；磁力计、绝对航向、线加速度或姿态方向未验证前不得作为稳定真值。
 - 若 IMU 姿态方向或坐标轴不确定，先只录 bag，不接入 EKF。
 - 协方差不得凭经验写成已验证精度；初值必须标注待测量，并通过静止、直线、原地转向数据修正。
 - `robot_localization` 的输出不得与底盘驱动重复发布同一 TF。
+
+启动命令:
+
+```bash
+ros2 launch algo_localization localization.launch.py
+```
+
+车机 Noetic bag 迁移或桥接到 ROS2 时，如果 IMU 仍为 `/imu/data_raw`，先用显式参数覆盖:
+
+```bash
+ros2 launch algo_localization localization.launch.py imu_topic:=/imu/data_raw
+```
+
+影子模式通过后，才允许让 EKF 接管 TF:
+
+```bash
+ros2 launch algo_localization localization.launch.py publish_tf:=true
+```
 
 最小验收:
 
@@ -416,9 +449,18 @@ rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
 
 产物:
 
-- `robot_localization` 参数文件和 launch，待实现。
-- 静止、低速直行、原地转向 rosbag。
+- `src/algo_localization/config/ekf.yaml` 和 `src/algo_localization/launch/localization.launch.py`。
+- 静止、低速直行、原地转向 rosbag；Noetic 证据见 `docs/validation/localization_slam_validation.md`。
 - `/odometry/filtered` 与 `/odom` 对比记录。
+
+当前 Noetic 结果:
+
+| 项目 | 状态 |
+| --- | --- |
+| EKF 影子模式静止检查 | 通过，`/odometry/filtered` 约 30 Hz，diagnostics `level=0` |
+| P2 bag | `tzb2026/bag/p2_ekf_static.bag` 和 `tzb2026/bag/p2_ekf_motion.bag` 已录制，`rosbag info` 已归档 |
+| `/odom.pose.covariance` | x、y、yaw pose 协方差为 0，P2 初值不消费任何 `/odom.pose` 字段 |
+| TF 接管 | 未通过，暂不允许 `publish_tf=true` |
 
 建议动作:
 
@@ -563,7 +605,7 @@ rosbag:
 推荐保存位置:
 
 ```text
-docs/validation/localization_slam_validation.md  待创建
+docs/validation/localization_slam_validation.md
 bags/localization_slam_check/                    不提交大文件
 maps/                                            地图文件提交策略待确认
 ```
@@ -599,6 +641,8 @@ B 导航负责人不得假设:
 git diff --check
 rg -n "localization_slam|slam_toolbox|robot_localization|map -> odom|base_footprint" docs
 python3 -m pytest src/base_bringup/test src/algo_navigation/test
+python3 -m pytest src/algo_localization/test
+colcon build --symlink-install --packages-select algo_localization
 ```
 
 ### 实车检查

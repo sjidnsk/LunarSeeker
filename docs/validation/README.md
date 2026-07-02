@@ -11,6 +11,7 @@
 
 当前记录:
 
+- [定位与 SLAM 验证记录](localization_slam_validation.md)
 - [Mock/sim 验证记录](mock_bringup_validation.md)
 - [P3 Nav2 仿真验证记录](navigation_sim_validation.md)
 - [车机 Noetic 基线验证记录](vehicle_noetic_baseline_validation.md)
