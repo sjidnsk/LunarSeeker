@@ -4,7 +4,7 @@
 
 当前状态:
 
-- `algo_localization` 已提供 P2 `robot_localization` EKF 参数文件和 ROS2 launch 入口；P3 `slam_toolbox` 参数、地图保存和固定地图定位入口仍待实现。
+- `algo_localization` 已提供 P2 `robot_localization` EKF 参数文件和 ROS2 launch 入口；P3-1 已提供 `slam_toolbox` 在线异步建图参数和 ROS2 launch 入口；地图保存和固定地图定位入口仍待实现。
 - `base_bringup` 的 Nav2 P1/P3 只验证了外部 `/map`、`/tf`、`/odom`、`/scan` 输入契约，不代表真实 SLAM、外参或传感器数据已通过。
 - 2026-07-02 车机 ROS Noetic P1 只读检查已通过: `can0`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw`、TF 链和 rosbag 记录均正常；该结果只证明厂商 Noetic 链路可用，不代表 ROS2 Humble 主线已完成接入。
 - 2026-07-02 车机 ROS Noetic P2 已通过: 影子模式 motion 分析通过，底盘 `pub_tf=false` 且 EKF `publish_tf=true` 时，`odom -> base_footprint` 由 `/ekf_localization` 发布并通过低速 motion bag 验证；该结果仍不代表 ROS2 Humble 主线已完成实车接入。
@@ -38,9 +38,9 @@ base_bringup
 |-- IMU driver                 提供 /imu/data
 `-- robot_state_publisher      发布 URDF 静态/关节 TF
 
-algo_localization              待实现
+algo_localization
 |-- robot_localization EKF     融合 /odom 和 /imu/data
-|-- slam_toolbox               建图、定位和 map -> odom
+|-- slam_toolbox               P3-1 在线建图入口；固定地图定位待实现
 `-- localization checks        质量检查和记录脚本，待实现
 
 algo_navigation / Nav2
@@ -74,7 +74,7 @@ algo_navigation / Nav2
 | 名称 | 类型 | 消费者 | 用途 | 状态 |
 | --- | --- | --- | --- | --- |
 | `/map` | `nav_msgs/OccupancyGrid` | Nav2、frontier 搜索、RViz | 全局规划和探索目标选择 | 实车待验证 |
-| `map -> odom` | TF | Nav2、感知、任务记录 | 全局定位修正 | 由 `slam_toolbox` 发布，待实现 |
+| `map -> odom` | TF | Nav2、感知、任务记录 | 全局定位修正 | P3-1 mapping 入口已实现；实车建图待验证 |
 | `/odometry/filtered` | `nav_msgs/Odometry` | Nav2、记录系统 | 融合里程计 | ROS2 P2 入口已实现；Noetic P2 motion 和 TF 接管验证通过 |
 | `odom -> base_footprint` | TF | 全系统 | 局部连续位姿 | Noetic P2 已验证可由 `robot_localization` 发布；ROS2 实车接入待验证 |
 | 定位质量检查结果 | 文档记录或后续 topic | P0、B、C | 判断是否允许导航 | 待实现 |
@@ -110,7 +110,7 @@ TF 发布权:
 
 | Transform | 推荐发布者 | 说明 | 状态 |
 | --- | --- | --- | --- |
-| `map -> odom` | `slam_toolbox` | 建图/定位对 odom 漂移做全局修正 | 待实现 |
+| `map -> odom` | `slam_toolbox` | 建图/定位对 odom 漂移做全局修正 | P3-1 mapping 入口已实现；实车建图待验证 |
 | `odom -> base_footprint` | `robot_localization` | 融合 wheel odom 与 IMU 后输出连续局部位姿 | Noetic P2 已验证；ROS2 实车接入待验证 |
 | `base_footprint -> base_link` | `robot_state_publisher` | 来自 URDF，不应由定位节点重复发布 | mock/sim 已验证，实车待验证 |
 | `base_link -> lidar_link` | `robot_state_publisher` / 静态 TF | 外参必须实测 | 待测量 |
@@ -147,7 +147,7 @@ ros2 topic echo /imu/data --once
 
 | 项目 | 门槛 | 状态 |
 | --- | --- | --- |
-| `/odom` | 连续发布，无时间戳倒退，速度符号与车体运动一致 | Noetic P1 已验证约 50 Hz；运动方向仍待 P2 低速验证 |
+| `/odom` | 连续发布，无时间戳倒退，速度符号与车体运动一致 | Noetic P1 已验证约 50 Hz；Noetic P2 已完成低速运动方向验证；ROS2 待验证 |
 | `/scan` | 连续发布，非全 NaN/Inf，角度范围与雷达安装一致 | Noetic P1 已验证约 9.98 Hz，`ranges` 有效；角度范围待建图验证 |
 | `/imu/data` | 连续发布，静止时角速度接近 0，重力方向合理 | Noetic P1 已验证 `/imu/data_raw` 约 200 Hz；ROS2 话题映射待实现 |
 | frame_id | 与 TF 树一致，不出现空 frame | Noetic P1 已验证 `odom`、`base_footprint`、`rslidar`、`imu_link` 连通 |
@@ -269,24 +269,38 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 计划入口:
 
 ```text
-src/algo_localization/config/slam_toolbox_mapping.yaml       待实现
+src/algo_localization/config/slam_toolbox_mapping.yaml
 src/algo_localization/config/slam_toolbox_localization.yaml  待实现
-src/algo_localization/launch/slam_mapping.launch.py          待实现
+src/algo_localization/launch/slam_mapping.launch.py
 src/algo_localization/launch/slam_localization.launch.py     待实现
 ```
+
+P3-1 只提供 mapping 入口，不启动底盘、雷达、IMU、EKF、RViz、Nav2 或地图保存流程。实车建图前必须先由其他入口提供 `/scan`、`odom -> base_footprint`、`base_footprint -> base_link` 和传感器静态 TF。
 
 推荐配置意图:
 
 | 参数 | 初始建议 | 说明 | 状态 |
 | --- | --- | --- | --- |
-| `mode` | `mapping` / `localization` 分文件 | 建图和固定地图定位分入口 | 待实现 |
-| `odom_frame` | `odom` | 与 EKF 输出一致 | 待验证 |
-| `map_frame` | `map` | Nav2 全局规划 frame | 待验证 |
-| `base_frame` | `base_footprint` | 与 TF 权威链路一致 | 待验证 |
-| `scan_topic` | `/scan` | 2D LaserScan 输入 | 待验证 |
-| `resolution` | 0.05 m | 与 Nav2 global costmap 初值一致 | 待验证 |
-| `map_update_interval` | 2.0 s | 初始建图更新周期 | 待验证 |
-| `transform_publish_period` | 0.02-0.05 s | 需结合 CPU 和 TF 稳定性调整 | 待验证 |
+| `mode` | `mapping` | P3-1 仅实现在线建图入口 | ROS2 主线已实现，实车待验证 |
+| `odom_frame` | `odom` | 与 EKF 输出一致 | ROS2 主线已实现，实车待验证 |
+| `map_frame` | `map` | Nav2 全局规划 frame | ROS2 主线已实现，实车待验证 |
+| `base_frame` | `base_footprint` | 与 TF 权威链路一致 | ROS2 主线已实现，实车待验证 |
+| `scan_topic` | `/scan` | 2D LaserScan 输入 | ROS2 主线已实现，实车待验证 |
+| `resolution` | 0.05 m | 与 Nav2 global costmap 初值一致 | ROS2 主线已实现，实车待验证 |
+| `map_update_interval` | 2.0 s | 初始建图更新周期 | ROS2 主线已实现，实车待验证 |
+| `transform_publish_period` | 0.02 s | 初始 TF 发布周期，需结合 CPU 和 TF 稳定性调整 | ROS2 主线已实现，实车待验证 |
+
+启动命令:
+
+```bash
+ros2 launch algo_localization slam_mapping.launch.py
+```
+
+bag 回放验证时可显式使用仿真时间:
+
+```bash
+ros2 launch algo_localization slam_mapping.launch.py use_sim_time:=true
+```
 
 建图流程:
 
@@ -480,7 +494,7 @@ rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
 
 产物:
 
-- `slam_toolbox` mapping 参数和 launch，待实现。
+- `src/algo_localization/config/slam_toolbox_mapping.yaml` 和 `src/algo_localization/launch/slam_mapping.launch.py`。
 - 初版场地地图、pose graph、rosbag 和 RViz 截图。
 
 建议动作:
@@ -495,6 +509,8 @@ rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
 - `/map` 连续更新。
 - 回环后地图无明显重影。
 - 地图可被 Nav2 global costmap 读取。
+
+P3-1 仅完成 ROS2 主线 mapping 入口和静态验证，不代表上述实车建图验收已通过。
 
 ### P4: 固定地图定位与短程导航
 
@@ -644,6 +660,8 @@ rg -n "localization_slam|slam_toolbox|robot_localization|map -> odom|base_footpr
 python3 -m pytest src/base_bringup/test src/algo_navigation/test
 python3 -m pytest src/algo_localization/test
 colcon build --symlink-install --packages-select algo_localization
+source install/setup.bash
+ros2 launch algo_localization slam_mapping.launch.py --show-args
 ```
 
 ### 实车检查

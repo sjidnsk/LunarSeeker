@@ -13,8 +13,8 @@ ekf_filter_node:
     base_link_frame: base_footprint
     world_frame: odom
 
-    # P2 默认使用影子模式，避免和底盘驱动重复发布 odom -> base_footprint。
-    # 影子模式通过后，可在 launch 中设置 publish_tf:=true 让 EKF 接管 TF。
+    # 默认使用影子模式，避免和底盘驱动重复发布 odom -> base_footprint。
+    # P2 Noetic 已验证: 底盘 pub_tf=false 时，可通过 launch 参数 publish_tf:=true 让 EKF 接管 TF。
     publish_tf: false
 
     odom0: /odom
