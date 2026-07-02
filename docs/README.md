@@ -17,6 +17,7 @@
 
 - [总体架构](design/architecture.md)
 - [系统基线](design/system_baseline.md)
+- [探索导航避障设计方案](design/navigation_planning.md)
 
 ## Engineering
 
@@ -24,6 +25,7 @@
 
 - [团队协作](engineering/team_workflow.md)
 - [终端命令](engineering/terminal_commands.md)
+- [导航搜索可视化](engineering/navigation_visualization.md)
 
 ## Validation
 

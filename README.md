@@ -3,7 +3,7 @@
 LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采样任务”的 ROS2 Humble 单仓库工作区。项目固定以 **SCOUT MINI + PiPER** 为移动采样平台，在 Ubuntu 22.04、ROS2 Humble、Python 3.10 环境下开发全程自主的目标识别、导航避障、机械臂抓取、携带返回和指定区域放置能力。
 
 > [!IMPORTANT]
-> 当前仓库已完成阶段 0 基础文档和 ROS2 工作区构建验收，`colcon build --symlink-install` 已在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。由于小车尚未到位，阶段 1 实车硬件 Bringup 暂缓，当前先推进 mock/sim 仿真链路。重量、尺寸、传感器安装、线束和支架方案仍必须经过实物测量和复核后，才能作为参赛状态结论。
+> 当前仓库已完成阶段 0 基础文档和 ROS2 工作区构建验收，`colcon build --symlink-install` 已在 Ubuntu 22.04 + ROS2 Humble 环境中确认通过。SCOUT MINI、PiPER 和传感器实物已到，传感器线束已接入车机并上胶固定；车机 Noetic 流程已按 `tzb2026/readme-2451.txt` 测试通过。该结论不代表 ROS2 Humble 实车 bringup 已完成，重量、尺寸、传感器外参、支架方案和 ROS2 硬件指标仍需实测复核。
 
 ## 比赛目标
 
@@ -53,10 +53,11 @@ LunarSeeker（月洞探岩）是面向“月球熔岩洞机器人智能自主采
 ## 当前推进状态
 
 - 阶段 0 初始化: 基础文档、ROS2 工作区骨架、接口包、bringup 包、description 包和任务状态机包已建立；`colcon build --symlink-install` 已确认通过。
-- 当前推进路径: 小车尚未到位，暂时跳过实车硬件 Bringup，先验证 mock/sim 启动、任务状态机和基础 topic 链路。
-- Mock/sim 验证: 当前可发布 mock 目标、mock 导航状态和基础传感器 topic，验证记录见 [docs/engineering/mock_bringup_validation.md](docs/engineering/mock_bringup_validation.md)。
-- 阶段 1 硬件 Bringup: 待小车和硬件到位后启动，需验证 SCOUT MINI、PiPER、RGB-D、LiDAR、IMU、基础 TF、URDF 和启动文件。
-- 未关闭风险: 重量、出发尺寸、传感器安装、线束、供电、支架和第三方驱动 commit 仍待实测、待归档或待硬件验证锁定。
+- 当前硬件状态: 实物已到；本机不直连已固定到车机的传感器，真实硬件验证需部署到车机或 ROS2 主控执行。
+- 车机 Noetic 基线: 已按 `tzb2026/readme-2451.txt` 测试通过，作为硬件 fallback，不等同于 ROS2 Humble 实车验收。
+- Mock/sim 验证: 已验证 mock 目标、mock 导航状态、基础传感器 topic、任务 action 和 rosbag 记录，验证记录见 [docs/validation/mock_bringup_validation.md](docs/validation/mock_bringup_validation.md)。
+- 阶段 1 硬件 Bringup: ROS2 Humble 实车 bringup 待部署到车机验证，不视为已完成。
+- 未关闭风险: 重量、出发尺寸、传感器外参、线束、供电、支架和第三方 ROS2 驱动 commit 仍待实测、待归档或待硬件验证锁定。
 
 ## ROS2 环境构建
 
@@ -80,9 +81,10 @@ ros2 launch base_bringup sim_bringup.launch.py
 |-- docs/
     |-- README.md
     |-- design/              # 架构、系统基线
-    |-- engineering/         # 协作流程、命令、验证记录
+    |-- engineering/         # 协作流程、命令
     |-- planning/            # 任务目标、路线、预算
-    `-- references/          # 第三方依赖、厂商资料、扫描报告
+    |-- references/          # 第三方依赖、厂商资料、扫描报告
+    `-- validation/          # mock/sim、车机、硬件和端到端验证记录
 `-- src/
     |-- base_bringup/            # 启动、launch、参数配置
     |-- base_description/        # URDF、xacro、TF 外参、模型

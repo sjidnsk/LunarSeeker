@@ -26,6 +26,7 @@ def test_required_topics_are_declared():
         "/camera/depth/image_rect_raw",
         "/tf",
         "/target_detections",
+        "/navigation/status",
         "/mission/state",
         "can0",
         "can1",

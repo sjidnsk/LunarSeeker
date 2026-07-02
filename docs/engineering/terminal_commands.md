@@ -123,6 +123,7 @@ use_mock_hardware:=true mission_time_limit_sec:=600
 
 ```bash
 ros2 interface show base_interfaces/msg/MissionState
+ros2 interface show base_interfaces/msg/NavigationStatus
 ros2 interface show base_interfaces/msg/ScienceTarget
 ros2 interface show base_interfaces/msg/ScienceTargetArray
 ros2 interface show base_interfaces/action/ExecuteMission
@@ -173,7 +174,35 @@ ros2 node info /mock_navigation
 ros2 node info /mock_manipulation
 ```
 
-## 12. 调用任务 Action
+## 12. 导航搜索可视化
+
+启动 `algo_navigation` 的独立 RViz 调试入口:
+
+```bash
+ros2 launch algo_navigation navigation_visualization.launch.py
+```
+
+该入口只用于导航搜索算法调试，会启动 `mock_frontier_map`、`mock_navigation`、`navigation_visualizer` 和 RViz。当前探索策略为 frontier exploration：从 `/map` 中寻找已知自由区和未知区边界，并优先选择靠近或位于指定任务区域的 frontier。默认使用 `odom` 作为 mock 调试坐标系；接入 Nav2 / slam_toolbox / robot_localization 后再按实际 TF 切换到 `map`。
+
+显式指定任务区域:
+
+```bash
+ros2 launch algo_navigation navigation_visualization.launch.py \
+  task_area.min_x:=1.6 task_area.max_x:=3.2 \
+  task_area.min_y:=-0.8 task_area.max_y:=0.8
+```
+
+查看可视化 topic:
+
+```bash
+ros2 topic echo /navigation/search_path
+ros2 topic echo /navigation/search_markers
+ros2 topic echo /map
+```
+
+更多说明见 [导航搜索可视化](navigation_visualization.md)。
+
+## 13. 调用任务 Action
 
 查看 action:
 
@@ -188,7 +217,7 @@ ros2 action info /execute_mission
 ros2 action send_goal /execute_mission base_interfaces/action/ExecuteMission "{run_index: 1, use_mock_hardware: true, profile_name: 'mock'}"
 ```
 
-## 13. TF 检查
+## 14. TF 检查
 
 生成 TF 树:
 
@@ -206,7 +235,7 @@ ros2 run tf2_ros tf2_echo base_link lidar_link
 ros2 run tf2_ros tf2_echo base_link piper_base_link
 ```
 
-## 14. 录制与回放 Rosbag
+## 15. 录制与回放 Rosbag
 
 录制关键 topic:
 
@@ -232,7 +261,7 @@ ros2 bag info bags/mock_run_001
 ros2 bag play bags/mock_run_001
 ```
 
-## 15. 测试
+## 16. 测试
 
 运行全部测试:
 
@@ -316,7 +345,100 @@ perception/target-pose
 manipulation/mock-piper
 ```
 
-## 19. 不建议随手执行的命令
+## 19. Nav2 独立导航栈 P1
+
+该入口只启动 Nav2 navigation 栈，用于验证 planner、controller、costmap、behavior tree 和 velocity smoother 参数。它不启动 mock map、SLAM、AMCL、map_server、任务状态机或 `robot_state_publisher`；运行前必须由其他 bringup、mock 或 rosbag 提供 `/map`、`/tf`、`/odom` 和 `/scan`。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch base_bringup nav2_bringup.launch.py
+```
+
+查看启动参数:
+
+```bash
+ros2 launch base_bringup nav2_bringup.launch.py --show-args
+```
+
+## 20. Nav2 action 协调节点 P2
+
+该入口只启动 `navigation_coordinator`，用于把 `/mission/state`、`/map`、`/target_detections` 和 Nav2 `/navigate_to_pose` action 串联起来。它不启动 Nav2 栈、mock map、任务状态机或底盘传感器；运行前需由其他入口提供 Nav2、TF、地图和传感器输入。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch algo_navigation navigation_coordinator.launch.py
+```
+
+查看结构化导航状态:
+
+```bash
+ros2 topic echo /navigation/status
+```
+
+## 21. Nav2 仿真验证 P3
+
+该入口用于 P3 轻量仿真验收，会串起 `robot_state_publisher`、P1 `nav2_bringup.launch.py`、P2 `navigation_coordinator.launch.py`、`navigation_sim_world` 和 `navigation_scenario_driver`。它不使用 `/goal_pose` mock 调试链路；验证对象是正式 `/navigate_to_pose` action 和 `/navigation/status`。
+
+成功闭环，默认打开 RViz:
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal
+```
+
+如需在录制 rosbag 或无图形环境中关闭 RViz:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=nominal use_rviz:=false
+```
+
+RViz 中重点查看 `Sim Map`、`Robot Model`、`LaserScan`、`Nav2 Plan`、`Global Costmap`、`Local Costmap` 和 `Odom Trail`。P3 可视化入口使用正式 `/navigate_to_pose` 和 `/navigation/status` 链路，不使用 `/goal_pose` mock 调试链路。
+
+P3 仿真 TF 链路为 `map -> odom -> base_footprint -> base_link`。`navigation_sim_world` 发布 `/joint_states`，让 `robot_state_publisher` 能在 RViz 中补齐四个轮子 link。检查命令:
+
+```bash
+ros2 run tf2_ros tf2_echo map base_footprint
+ros2 run tf2_ros tf2_echo map base_link
+ros2 topic echo /joint_states --once
+```
+
+当前 Nav2 控制器使用 RPP，不发布 DWB trajectory 调试 topic。如果在 RViz 中手动添加 `Trajectory` 显示项并看到 topic 缺失或类型错误，通常只是该显示项不适用于当前 P3 配置；用 `Odom Trail` 查看实际运动轨迹。
+
+失败场景:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=frontier_unreachable
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=local_obstacle_blocked
+ros2 launch base_bringup nav2_sim_validation.launch.py scenario:=target_approach_failed
+```
+
+录制 P3 rosbag:
+
+```bash
+ros2 bag record -o bags/p3_nominal \
+  /mission/state \
+  /navigation/status \
+  /map \
+  /tf \
+  /tf_static \
+  /odom \
+  /joint_states \
+  /scan \
+  /cmd_vel \
+  /target_detections \
+  /navigate_to_pose/_action/status
+```
+
+查看启动参数:
+
+```bash
+ros2 launch base_bringup nav2_sim_validation.launch.py --show-args
+```
+
+## 22. 不建议随手执行的命令
 
 不要随手执行批量删除命令，例如:
 
@@ -326,7 +448,7 @@ rm -rf build install log
 
 如果确实需要清理构建产物，先确认 `build/`、`install/`、`log/` 中没有需要保留的日志、rosbag 或实验结果，再按团队文件管理规则处理。
 
-## 20. 当前阶段最常用命令
+## 23. 当前阶段最常用命令
 
 本机开发和离线验证时，最常用的是:
 

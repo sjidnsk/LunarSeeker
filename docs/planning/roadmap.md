@@ -90,6 +90,8 @@
 
 ## 阶段 4: 导航与越障
 
+设计入口: [探索导航避障设计方案](../design/navigation_planning.md)。
+
 目标:
 
 - 完成 slam_toolbox、robot_localization、Nav2 参数调试。

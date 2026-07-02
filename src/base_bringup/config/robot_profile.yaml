@@ -136,6 +136,7 @@ sensors:
 topics:
   tf: /tf
   target_detections: /target_detections
+  navigation_status: /navigation/status
   mission_state: /mission/state
 
 software:

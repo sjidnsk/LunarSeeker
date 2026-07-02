@@ -1,0 +1,36 @@
+uint8 STATUS_UNKNOWN=0
+uint8 STATUS_IDLE=1
+uint8 STATUS_WAITING_FOR_INPUT=2
+uint8 STATUS_WAITING_FOR_NAV2=3
+uint8 STATUS_GOAL_PENDING=4
+uint8 STATUS_GOAL_ACTIVE=5
+uint8 STATUS_GOAL_SUCCEEDED=6
+uint8 STATUS_GOAL_FAILED=7
+uint8 STATUS_GOAL_CANCELED=8
+uint8 STATUS_RETURN_RECOMMENDED=9
+uint8 STATUS_FAULT=255
+
+uint8 GOAL_NONE=0
+uint8 GOAL_BASE_EXIT=1
+uint8 GOAL_FRONTIER=2
+uint8 GOAL_TARGET_APPROACH=3
+uint8 GOAL_BASE_RETURN=4
+uint8 GOAL_SAMPLE_DROP_ZONE=5
+uint8 GOAL_HOLD_POSITION=6
+
+std_msgs/Header header
+uint8 mission_phase
+string mission_phase_name
+uint8 status
+string status_text
+uint8 goal_type
+string goal_label
+geometry_msgs/PoseStamped goal_pose
+bool nav2_available
+bool goal_active
+uint16 retry_count
+uint16 failure_count
+uint16 recovery_count
+float32 distance_remaining_m
+string last_result
+string detail

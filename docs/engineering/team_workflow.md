@@ -43,6 +43,7 @@ E 是感知与机械臂之间的接口桥梁，不能只按视觉任务处理。
 | `/camera/color/image_raw` | `sensor_msgs/Image` | D 感知 | D、E | 彩色图稳定，曝光和补光策略可复现 |
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | D 感知 | E | 深度图与彩色图对齐，可用于 3D 位姿估计 |
 | `/target_detections` | `base_interfaces/ScienceTargetArray` | E 目标位姿 | B、F、P0 | 每个目标包含类别、置信度、位姿、状态和可采样标记 |
+| `/navigation/status` | `base_interfaces/NavigationStatus` | B 导航 | P0、记录系统 | 能追踪当前导航目标、Nav2 action 状态、失败次数和恢复次数 |
 | `/joint_states` | `sensor_msgs/JointState` | F 机械臂 | F、P0 | PiPER 关节状态稳定发布 |
 | `/mission/state` | `base_interfaces/MissionState` | P0/任务状态机 | 全员、记录系统 | 能追踪阶段、得分、剩余时间和故障 |
 | `/execute_mission` | `base_interfaces/ExecuteMission` action | P0/任务状态机 | 比赛启动入口 | 可触发一次完整自主任务 |

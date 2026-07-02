@@ -248,7 +248,7 @@ ROS2 主线层
 - ROS2 主线代码进入 `src/` 对应包。
 - 厂商源码保持在 ignored 目录或 `src/third_party/`，不直接提交。
 - 桥接脚本进入 `tools/` 或明确实验目录，不能成为主入口。
-- 部署检查单、镜像记录、硬件验证记录进入 `docs/engineering/`。
+- 部署检查单和镜像记录进入 `docs/engineering/`，可追溯的验证记录进入 `docs/validation/`。
 
 ## 8. 测试与验收闭环
 

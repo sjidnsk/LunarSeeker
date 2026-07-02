@@ -2,8 +2,14 @@ build/
 install/
 log/
 
+# Local validation outputs and ROS bag directories.
+bags/
+
+# Third-party and vendor source drops are tracked through docs/dependencies,
+# not committed directly to this repository.
 src/third_party/
-tzb2026/
+tzb2026/*
+!tzb2026/COLCON_IGNORE
 
 __pycache__/
 *.py[cod]
@@ -20,7 +26,6 @@ env/
 *.db3
 *.mcap
 *.log
-bags/
 
 .vscode/
 .idea/
