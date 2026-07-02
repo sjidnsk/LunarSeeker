@@ -61,7 +61,7 @@ Nav2
 | `/mission/state` | `base_interfaces/MissionState` | `base_mission` | 驱动导航模式切换 | 已定义 |
 | `/map` | `nav_msgs/OccupancyGrid` | `slam_toolbox` 或 mock map | frontier、global costmap | mock 已验证，实车待验证 |
 | `/tf`, `/tf_static` | `tf2_msgs/TFMessage` | localization / description | 坐标转换 | 外参待验证 |
-| `/odom` 或 `/odometry/filtered` | `nav_msgs/Odometry` | 底盘 / `robot_localization` | 控制器速度估计 | Noetic P1 已验证 `/odom` 约 50 Hz；Noetic P2 EKF 影子模式静止检查通过，motion bag 待回放分析；ROS2 Nav2 接入待验证 |
+| `/odom` 或 `/odometry/filtered` | `nav_msgs/Odometry` | 底盘 / `robot_localization` | 控制器速度估计 | Noetic P1 已验证 `/odom` 约 50 Hz；Noetic P2 EKF motion 和 TF 接管验证通过；ROS2 Nav2 接入待验证 |
 | `/scan` | `sensor_msgs/LaserScan` | LiDAR 驱动 | obstacle layer 和避障 | Noetic P1 已验证约 9.98 Hz，`frame_id=rslidar`；ROS2 Nav2 接入待验证 |
 | `/target_detections` | `base_interfaces/ScienceTargetArray` | 感知定位 | 目标接近点生成 | mock/实车待验证 |
 

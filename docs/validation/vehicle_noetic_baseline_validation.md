@@ -5,7 +5,7 @@
 - 记录日期: 2026-07-02
 - 硬件状态: SCOUT MINI、PiPER 和传感器实物已到。
 - 连接状态: 传感器线束已连接到车机并上胶固定，本机不作为真实传感器直连测试环境。
-- 已验证流程: 已按 `tzb2026/readme-2451.txt` 在车机执行厂商 ROS Noetic 流程测试；2026-07-02 已完成定位/SLAM P1 只读数据质量检查，并完成 P2 EKF 影子模式静止检查和 motion bag 录制。
+- 已验证流程: 已按 `tzb2026/readme-2451.txt` 在车机执行厂商 ROS Noetic 流程测试；2026-07-02 已完成定位/SLAM P1 只读数据质量检查，并完成 P2 EKF 影子模式、motion 分析和 TF 接管验证。
 
 ## 2026-07-02 P1 只读检查结果
 
@@ -23,15 +23,16 @@
 
 P1 结论: 通过。可以进入 P2 `robot_localization` 参数开发和低风险离线/只读验证；P3 建图输入条件已具备，但正式建图仍建议在 P2 里程计链路确认后执行。
 
-## P2 EKF 影子模式索引
+## P2 EKF 验证索引
 
-2026-07-02 已在车机 Noetic 工作区完成 P2 `robot_localization` 影子模式静止检查，并录制静止与低速动作 bag。详细记录见 [定位与 SLAM 验证记录](localization_slam_validation.md)。
+2026-07-02 已在车机 Noetic 工作区完成 P2 `robot_localization` 影子模式、低速 motion 分析和 TF 接管验证。详细记录见 [定位与 SLAM 验证记录](localization_slam_validation.md)。
 
 关键边界:
 
 - Noetic EKF 只作为参数初调和实车输入质量证据，ROS2 主线配置以 `src/algo_localization/config/ekf.yaml` 为准。
 - 因厂商 `/odom.pose.covariance` 中 x、y、yaw pose 协方差为 0，P2 初值只消费 `/odom.twist.linear.x`、`/odom.twist.angular.z` 和 IMU yaw rate。
-- motion bag 尚未完成回放分析，暂不允许开启 `publish_tf=true` 接管 `odom -> base_footprint`。
+- P2 已验证底盘 `pub_tf=false` 且 EKF `publish_tf=true` 时，可由 `/ekf_localization` 作为 `odom -> base_footprint` 权威发布者。
+- P3 前仍需复查 `/scan`、`base_link -> rslidar`、`base_link -> imu_link` 和 ROS2 主线接入发布权。
 
 ## 验证边界
 

@@ -7,7 +7,7 @@
 - `algo_localization` 已提供 P2 `robot_localization` EKF 参数文件和 ROS2 launch 入口；P3 `slam_toolbox` 参数、地图保存和固定地图定位入口仍待实现。
 - `base_bringup` 的 Nav2 P1/P3 只验证了外部 `/map`、`/tf`、`/odom`、`/scan` 输入契约，不代表真实 SLAM、外参或传感器数据已通过。
 - 2026-07-02 车机 ROS Noetic P1 只读检查已通过: `can0`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw`、TF 链和 rosbag 记录均正常；该结果只证明厂商 Noetic 链路可用，不代表 ROS2 Humble 主线已完成接入。
-- 2026-07-02 车机 ROS Noetic P2 EKF 影子模式静止检查已通过，`/odometry/filtered` 约 30 Hz 且 diagnostics 为 `level=0`；motion bag 已录制并完成 `rosbag info` 归档，但尚未完成回放分析，暂不允许 EKF 接管 `odom -> base_footprint`。
+- 2026-07-02 车机 ROS Noetic P2 已通过: 影子模式 motion 分析通过，底盘 `pub_tf=false` 且 EKF `publish_tf=true` 时，`odom -> base_footprint` 由 `/ekf_localization` 发布并通过低速 motion bag 验证；该结果仍不代表 ROS2 Humble 主线已完成实车接入。
 - 真实硬件验证必须部署到车机或 ROS2 主控后执行；本机只能完成文档、静态检查、mock/sim 和可离线验证项。
 - 本文所有外参、协方差、频率、速度、地图质量和定位漂移指标均为初始设计或验收门槛，未实测前保持“待测量”或“待验证”状态。
 
@@ -75,8 +75,8 @@ algo_navigation / Nav2
 | --- | --- | --- | --- | --- |
 | `/map` | `nav_msgs/OccupancyGrid` | Nav2、frontier 搜索、RViz | 全局规划和探索目标选择 | 实车待验证 |
 | `map -> odom` | TF | Nav2、感知、任务记录 | 全局定位修正 | 由 `slam_toolbox` 发布，待实现 |
-| `/odometry/filtered` | `nav_msgs/Odometry` | Nav2、记录系统 | 融合里程计 | ROS2 P2 入口已实现；Noetic P2 静止影子模式通过，motion bag 待回放分析 |
-| `odom -> base_footprint` | TF | 全系统 | 局部连续位姿 | 推荐由 `robot_localization` 发布，待验证 |
+| `/odometry/filtered` | `nav_msgs/Odometry` | Nav2、记录系统 | 融合里程计 | ROS2 P2 入口已实现；Noetic P2 motion 和 TF 接管验证通过 |
+| `odom -> base_footprint` | TF | 全系统 | 局部连续位姿 | Noetic P2 已验证可由 `robot_localization` 发布；ROS2 实车接入待验证 |
 | 定位质量检查结果 | 文档记录或后续 topic | P0、B、C | 判断是否允许导航 | 待实现 |
 
 接口原则:
@@ -111,7 +111,7 @@ TF 发布权:
 | Transform | 推荐发布者 | 说明 | 状态 |
 | --- | --- | --- | --- |
 | `map -> odom` | `slam_toolbox` | 建图/定位对 odom 漂移做全局修正 | 待实现 |
-| `odom -> base_footprint` | `robot_localization` | 融合 wheel odom 与 IMU 后输出连续局部位姿 | 待实现 |
+| `odom -> base_footprint` | `robot_localization` | 融合 wheel odom 与 IMU 后输出连续局部位姿 | Noetic P2 已验证；ROS2 实车接入待验证 |
 | `base_footprint -> base_link` | `robot_state_publisher` | 来自 URDF，不应由定位节点重复发布 | mock/sim 已验证，实车待验证 |
 | `base_link -> lidar_link` | `robot_state_publisher` / 静态 TF | 外参必须实测 | 待测量 |
 | `base_link -> imu_link` | `robot_state_publisher` / 静态 TF | 外参和方向必须实测 | 待测量 |
@@ -437,7 +437,7 @@ rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
 | TF | `odom -> base_footprint -> base_link -> rslidar/imu_link` 连通 | 通过 |
 | rosbag | 包含 `/tf`、`/odom`、`/rslidar_points`、`/scan`、`/imu/data_raw` | 通过 |
 
-结论: Noetic P1 通过。可进入 P2 EKF 参数开发；P3 建图输入条件已具备，但正式建图仍建议等待 P2 里程计链路确认。
+结论: Noetic P1 通过。P2 已完成后，P3 建图输入条件可继续向 `slam_toolbox` mapping 验证推进；正式建图前仍需复查 `/scan` 和静态 TF。
 
 验收:
 
@@ -457,10 +457,11 @@ rosbag record -O ~/agilex_ws/p1_bags/localization_p1_noetic.bag \
 
 | 项目 | 状态 |
 | --- | --- |
-| EKF 影子模式静止检查 | 通过，`/odometry/filtered` 约 30 Hz，diagnostics `level=0` |
-| P2 bag | `tzb2026/bag/p2_ekf_static.bag` 和 `tzb2026/bag/p2_ekf_motion.bag` 已录制，`rosbag info` 已归档 |
+| EKF 影子模式 motion 检查 | 通过，odom/IMU 转向符号 mismatch ratio 为 0.006，`/odometry/filtered` 无跳变，diagnostics 全为 `level=0` |
+| EKF TF 接管 motion 检查 | 通过，底盘 `pub_tf=false`、EKF `publish_tf=true` 时 `odom -> base_footprint` 由 `/ekf_localization` 发布，motion mismatch ratio 为 0.020 |
+| P2 bag | `p2_ekf_static.bag`、`p2_ekf_motion.bag`、`p2_ekf_tf_takeover_static.bag` 和 `p2_ekf_tf_takeover_motion.bag` 已录制并归档关键结果 |
 | `/odom.pose.covariance` | x、y、yaw pose 协方差为 0，P2 初值不消费任何 `/odom.pose` 字段 |
-| TF 接管 | 未通过，暂不允许 `publish_tf=true` |
+| TF 接管 | 通过；进入 P3 前必须保持底盘不发布同名 TF，并复查 `base_link -> imu_link/rslidar` 静态 TF |
 
 建议动作:
 
